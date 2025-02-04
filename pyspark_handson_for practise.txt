@@ -1,0 +1,3479 @@
+Right Crtl + c  and f,l a ,e 
+start-all.sh
+pyspark
+crtl + l ------> for clear screen.
+......................................................
+set : For Performing mathematical Operation.
+>>> hyd_branch = {'p1','p2','p3','p4','p5','p6'}
+>>> pune_branch = {'p1','p2','p3','p7','p8','p9'}
+>>> x = hyd_branch.union(pune_branch)
+>>> print(x)
+{'p4', 'p5', 'p3', 'p1', 'p7', 'p6', 'p8', 'p2', 'p9'}
+Note : - NO dublicate record.
+.......................................................
+>>> y=hyd_branch.intersection(pune_branch)
+>>> print(y)
+{'p2', 'p3', 'p1'}
+Note :- Only common records.
+.......................................................
+I want those product which are not part of pune branch
+>>> hyd_branch - pune_branch
+{'p4', 'p6', 'p5'}
+.....................................................
+I want those product which are not part of hyd branch
+>>> pune_branch - hyd_branch
+{'p8', 'p9', 'p7'}
+>>> 
+.....................................................
+Dictionary ----> Collection of (k,v) pairs.
+
+>>> x = {"name":"ajay","age":25,"sal":80000}
+>>> len(x)
+3
+>>> x["age"]
+25
+>>> x["name"]
+'ajay'
+#Adding a new key value pair
+>>> x["city"]="pune"
+>>> x
+{'name': 'ajay', 'age': 25, 'sal': 80000, 'city': 'pune'}
+>>> len(x)
+4
+#Modyfying value of existed key.
+>>> x["sal"]=90000
+>>> x
+{'name': 'ajay', 'age': 25, 'sal': 90000, 'city': 'pune'}
+>>> 
+.........................................................
+>>> f1 = lambda x:x*x
+>>> print(f1(10))
+100
+.........................................................
+#lambda function used as argument.
+x = [10,20,30,40,50,60]
+#Filter those element whose values > 30.
+
+>>> res = filter(lambda x:x>30,x)
+>>> print(res)
+<filter object at 0x7f970a563e50>
+>>> res = list(filter(lambda x:x>30,x))
+>>> print(res)
+[40, 50, 60]
+>>> 
+..........................................................
+res = filter(lambda y:y>30,x)
+>>> print(res)
+<filter object at 0x7f970a563e50>
+>>> res = list(filter(lambda y:y>30,x))
+>>> print(res)
+[40, 50, 60]
+
+..................................................................
+2 operations can be performed on a rdd.
+	1. Transformation
+	2. Actions
+Whenever we parallelize a python object, we get a spark object.
+
+..................................................................
+
+>>> x = [10,20,30,40,50]
+>>> rdd1 = sc.parallelize(x)
+>>> type(rdd1)
+<class 'pyspark.rdd.RDD'>
+>>> y=rdd1.collect()
+>>> print(y)
+[10, 20, 30, 40, 50]
+>>> 
+
+...............................................................
+Various Transformation:-
+1. map()
+2.flatMap()
+3.filter()
+4.union()
+5.intersection()
+6.substract()
+7.cartesian()
+8.distinct()
+.............................................................
+map() - Each element transformation. Applying operations to each element of a RDD returns a RDD.
+
+r1 = sc.parallelize([10,20,30,40,50])
+r2 = r1.map(lambda x:x*x)
+>>> r1 = sc.parallelize([10,20,30,40,50])
+>>> r2 = r1.map(lambda x:x*x)
+>>> r2.collect()
+[100, 400, 900, 1600, 2500]                                                     
+>>> 
+................................................................
+flatMap() : Flattens the element of the list or tuple.
+
+>>> x = [[10,20,30],[40,50,60],[70,80,90]]
+>>> y = sc.parallelize(x)
+>>> z=y.flatMap(lambda x:x)
+>>> w = z.collect()
+>>> w
+[10, 20, 30, 40, 50, 60, 70, 80, 90]
+>>> 
+
+................................................................
+>>> x = [[10,20,30],[40,50,60],[70,80,90]]
+>>> y = sc.parallelize(x)
+>>> z=y.map(lambda r:sum(r))        # without flattening the data i am applying the map. got 3 output.
+>>> z
+PythonRDD[8] at RDD at PythonRDD.scala:53
+>>> z.collect()
+[60, 150, 240]
+................................................................
+filter() : filters elements of a RDD based on condition and resultant is also a RDD.
+
+
+>>> sals = [10000,20000,30000,40000,50000,30000,60000]
+>>> sals1 = sc.parallelize(sals)
+>>> res = sals1.filter(lambda x:x>30000)
+>>> res2 = res.collect()
+>>> print(res2)
+[40000, 50000, 60000]
+>>> type(res2)    # res2 is a python object.
+<class 'list'>
+>>> 
+
+..................................................................
+# I want all those students other than Devops students.
+
+>>> stds_enroll = ["spark","hadoop","spark","devops","hadoop","devops"]
+>>> stds = sc.parallelize(stds_enroll)
+>>> res = stds.filter(lambda x:x != "devops")
+>>> res2 = res.collect()
+>>> print(res2)
+['spark', 'hadoop', 'spark', 'hadoop']
+>>> 
+...................................................................
+>>> print("total student for hadoop and spark are", len(res2))
+total student for hadoop and spark are 4
+>>> 
+....................................................................
+>>> res.count()
+4
+...........................................................
+union() : combines elements of multiple RDD's. By default performs union all operations.(Allows Dublicate)
+
+>>> emps_hyd = sc.parallelize(["ajay","rahul","blake","sanjay"])
+>>> emps_pune = sc.parallelize(["miller","james","john","arun","amar"])
+>>> res = emps_hyd.union(emps_pune)
+>>> res2=res.collect()
+>>> print(res2)
+['ajay', 'rahul', 'blake', 'sanjay', 'miller', 'james', 'john', 'arun', 'amar']
+>>> 
+..................................................................
+>>> r1 = sc.parallelize([10,20,30,40,50])
+>>> type(r1)
+<class 'pyspark.rdd.RDD'>
+>>> r2 = sc.parallelize([10,20,60,70,80])
+>>> res = r1.union(r2)
+>>> res2 = res.collect()
+>>> print(res2)                                                                 
+[10, 20, 30, 40, 50, 10, 20, 60, 70, 80]
+>>> 
+.................................................................
+>>> res1=r1.intersection(r2)
+>>> print(res1.collect())
+[10, 20]                                                                        
+>>> 
+.................................................................
+>> res3 = r1.subtract(r2)
+>>> print(res3.collect())
+[40, 50, 30]                                                                    
+>>> 
+..................................................................
+cartesian():performs cartesiaon product with other rdd. Each element of leftside combines with each element of right side.
+
+>>> r1 = sc.parallelize([1,2,3])  # can take tuple or set too.
+>>> r2 = sc.parallelize([4,5,6])
+>>> r3 = r1.cartesian(r2)
+>>> res = r3.collect()
+>>> print(res)
+[(1, 4), (1, 5), (1, 6), (2, 4), (2, 5), (2, 6), (3, 4), (3, 5), (3, 6)]
+>>> 
+......................................................................
+
+>>> r2 = sc.parallelize((4,5,6))
+>>> r1 = sc.parallelize((1,2,3))
+>>> r3 = r1.cartesian(r2)
+>>> res = r3.collect()
+>>> print(res)
+[(1, 4), (1, 5), (1, 6), (2, 4), (2, 5), (2, 6), (3, 4), (3, 5), (3, 6)]
+>>> r1 = sc.parallelize({1,2,3})
+>>> r2 = sc.parallelize({4,5,6})
+>>> r3 = r1.cartesian(r2)
+>>> res = r3.collect()
+>>> print(res)
+.........................................................................
+
+8. distinct() : Removes dublicate
+
+>>> r1 = sc.parallelize([10,20,30,30,30,40,50,60,60,70])
+>>> r2 = r1.distinct()
+>>> print(r2)
+PythonRDD[33] at RDD at PythonRDD.scala:53
+>>> print(r2.collect())
+[20, 40, 60, 10, 30, 50, 70]
+>>> 
+..........................................................................
+
+1. reduceByKey()
+Transformation on a pair RDD(k,v) pairs. Means, we can apply transformation on key value pairs.
+2. groupByKey()
+3. sortByKey()
+4. mapValues()
+5. keys()
+6. values()
+7. join()
+8. leftouterjoin()
+9.rightouterjoin()
+10.fullouterjoin()
+.................................................................................................
+reduceBykey() : sums up all the values with same keys. reducebykey can be applied only on (k,v) pair. It group similar key aggregation.
+
+>>> dnosals = [(11,10000),(12,20000),(13,30000),(11,10000),(12,20000),(13,30000)]
+>>> r1 = sc.parallelize(dnosals)
+>>> r2 = r1.reduceByKey(lambda p,q:p+q)
+>>> r2.collect()
+[(12, 40000), (13, 60000), (11, 20000)]
+>>> 
+
+.....................................................................................................
+>>> r1 = sc.parallelize(["rohit",30],["rohit",60])
+TypeError: int() argument must be a string, a bytes-like object or a real number, not 'list'
+.....................................................................................................
+>>> r1 = sc.parallelize([("rohit",30),("rahul",40),("kohli",100),("rohit",140),("rahul",23),("kohli",130)])
+>>> r2 = r1.reduceByKey(lambda x,y : x+y)
+>>> res = r2.collect()
+>>> print(res)
+[('rahul', 63), ('rohit', 170), ('kohli', 230)]
+>>> 
+......................................................................................................
+groupBYKey() : In groupByKey(), we can get all the aggregations. I.e sum(), avg(), max(), min(), count()
+		Her we get iterable object. Convert to list and perform all operations.
+
+> dno = [(11,10000),(12,20000),(13,30000),(11,40000),(12,50000),(13,60000),(11,70000),(12,80000)]
+>>> r1 = sc.parallelize(dno)
+>>> res = r1.groupByKey()
+>>> res.collect()
+[(12, <pyspark.resultiterable.ResultIterable object at 0x7fe0f6390c70>), (13, <pyspark.resultiterable.ResultIterable object at 0x7fe0f63905e0>), (11, <pyspark.resultiterable.ResultIterable object at 0x7fe0f6392410>)]
+>>> res2 = res.map(lambda x:(x[0],list(x[1])))
+>>> res2.collect()
+[(12, [20000, 50000, 80000]), (13, [30000, 60000]), (11, [10000, 40000, 70000])]
+>>> res3 = res2.map(lambda x:(x[0],sum(x[1]),max(x[1])))
+>>> res3.collect()
+[(12, 150000, 80000), (13, 90000, 60000), (11, 120000, 70000)]
+>>> 
+........................................................................................................
+>> dno = [(11,10000),(12,20000),(13,30000),(11,40000),(12,50000),(13,60000),(11,70000),(12,80000)]
+>>> r1 = sc.parallelize(dno)
+>>> res.collect()
+[(12, <pyspark.resultiterable.ResultIterable object at 0x7fe0f635fa90>), (13, <pyspark.resultiterable.ResultIterable object at 0x7fe0f635f610>), (11, <pyspark.resultiterable.ResultIterable object at 0x7fe0f635cbb0>)]
+
+>>> res2 = res.map(lambda x:(x[0],list(x[1])))
+>>> res2.collect()
+[(12, [20000, 50000, 80000]), (13, [30000, 60000]), (11, [10000, 40000, 70000])]
+
+>>> res3 = res2.map(lambda x:(x[0],sum(x[1])))
+>>> res3.collect()
+[(12, 150000), (13, 90000), (11, 120000)]
+
+>>> res3 = res2.map(lambda x:(x[0],sum(x[1]),max(x[1]),min(x[1]),len(x[1])))
+>>> res3.collect()
+[(12, 150000, 80000, 20000, 3), (13, 90000, 60000, 30000, 2), (11, 120000, 70000, 10000, 3)]
+>>> 
+...........................................................................................................
+sortByKey() : sorting based on key
+
+>> r1 = sc.parallelize([(11,10000),(12,20000),(13,30000),(11,40000),(12,50000),(13,60000),(11,70000)])
+>>> res = r1.sortByKey()
+>>> res.collect()                                                               
+[(11, 10000), (11, 40000), (11, 70000), (12, 20000), (12, 50000), (13, 30000), (13, 60000)]
+
+..........................................................................................
+mapValues() : Applying a functionality to each value, without changing the key.
+
+>> r1 = sc.parallelize([(11,10000),(12,20000),(13,30000),(11,40000),(12,50000),(13,60000),(11,70000)])
+>>> res = r1.mapValues(lambda x:x+5000)
+>>> res.collect()
+[(11, 15000), (12, 25000), (13, 35000), (11, 45000), (12, 55000), (13, 65000), (11, 75000)]
+>>> 
+............................................................................................
+keys() : returns keys of an rdd
+
+>>> r1 = sc.parallelize([(11,40000),(12,30000),(11,30000),(12,49999)])
+>>> r1.keys().collect()
+[11, 12, 11, 12]
+>>> 
+.............................................................................................
+values() : retuns he values of an rdd
+
+>>> r1 = sc.parallelize([("ajay","chennei"),("miller","pune"),("amit","hyd"),("santosh","delhi")])
+>>> r1.values().collect()
+['chennei', 'pune', 'hyd', 'delhi']
+
+.............................................................................................
+join()
+
+>>> r1 = sc.parallelize([(10,20),(30,40),(50,60)])
+>>> r2 = sc.parallelize([(10,20),(30,40),(70,80)])
+>>> ij = r1.join(r2)
+>>> r1.join(r2).collect()
+[(10, (20, 20)), (30, (40, 40))]   
+
+.............................................................................................
+>>> r1 = sc.parallelize([(10,20),(30,40),(50,60)])
+>>> r2 = sc.parallelize([(10,20),(30,40),(70,80)])
+>>> loj = r1.leftOuterJoin(r2)
+>>> loj.collect()
+[(10, (20, 20)), (50, (60, None)), (30, (40, 40))]                              
+>>> 
+............................................................................................
+>>> r1 = sc.parallelize([(10,20),(30,40),(50,60)])
+>>> r2 = sc.parallelize([(10,20),(30,40),(70,80)])
+
+>>> roj = r1.rightOuterJoin(r2)
+>>> roj.collect()
+[(10, (20, 20)), (30, (40, 40)), (70, (None, 80))]                              
+>>> 
+.................................................................................................
+>>> r1 = sc.parallelize([(10,20),(30,40),(50,60)])
+>>> r2 = sc.parallelize([(10,20),(30,40),(70,80)])
+>>> foj = r1.fullOuterJoin(r2)
+>>> foj.collect()
+[(10, (20, 20)), (50, (60, None)), (30, (40, 40)), (70, (None, 80))]            
+>>> 
+.................................................................................................
+
+
+
+Actions: Whenever action is performed, the flow executes from its root RDD.
+
+	The following are the some of the actions
+1.collect()
+2.count()
+3.countByValue()
+4.countByKey()
+5.take(num)
+6.top(num)
+7.first()
+8.reduce()
+9.sum()
+10.max()
+11.min()
+12.count()
+13.saveAsTextfile(path)
+..................................................................................................
+1.collect() : It will collect all partitions data of different slave machine into client machine
+
+>>> x = [10,20,30,40,50,60,70]
+>>> r1 = sc.parallelize(x)
+>>> r1.collect()
+[10, 20, 30, 40, 50, 60, 70]
+>>> 
+
+.....................................................................................
+count() : counts the number of elements in a RDD
+
+>>> x = [10,20,30,40,50,60,70]
+>>> r1 = sc.parallelize(x)
+>>> r1.collect()
+[10, 20, 30, 40, 50, 60, 70]
+>>> 
+>>> 
+>>> r1.count()
+7
+
+..............................................................................
+3. countByValue() : counts number of times each value occurs in RDD. It returns a Dictionary
+
+>> medals = ["ind","aus","eng","ind","eng","aus","ind","aus"]
+>>> r1 = sc.parallelize(medals)
+>>> r1.countByValue()
+defaultdict(<class 'int'>, {'ind': 3, 'aus': 3, 'eng': 2})
+
+.............................................................................
+
+countByKey() : count number of times each key has occured. We get output in the form of dictionary(key:value)
+		It should be applied only on a paired RDD.
+
+>> pairs = [('m',20000),('f',10000),('m',30000),('f',40000),('m',50000)]
+>>> r1 = sc.parallelize(pairs)
+>>> r1.countByKey()
+defaultdict(<class 'int'>, {'m': 3, 'f': 2})
+>>> 
+.............................................................................
+5. take(n) : takes first 'n' number of elements of RDD.
+
+>>> r1 = sc.parallelize([10,20,30,40,50])
+>>> r1.top(3)
+[50, 40, 30]
+
+.............................................................
+6. top(n) : Takes top 'n' elements of a RDD.
+
+>>> r1 = sc.parallelize([10,20,30,40,50])
+>>> r1.top(3)
+[50, 40, 30]
+>>> 
+
+....................................................................................
+
+>>> names = sc.parallelize(["rohith","ajay","blake","miller","james"])
+>>> names.take(2)
+['rohith', 'ajay']
+>>> 
+>>> names.top(2)
+['rohith', 'miller']
+>>> 
+
+....................................................................................
+first() : Takes  the 1st element of a RDD.
+names = sc.parallelize(["rohith","ajay","blake","miller","james"])
+>>> names.first()
+'rohith'
+....................................................................................
+>>> sals = [10000,30000,40000,50000]
+>>> r1 = sc.parallelize(sals)
+>>> r1.take(2)
+[10000, 30000]
+>>> r1.top(2)
+[50000, 40000]
+>>> r1.first()
+10000
+>>> 
+....................................................................................
+8. reduce() combines or sums elements of a RDD
+
+>>> x = [10,20,30,40,50]
+>>> r1 = sc.parallelize(x)
+>>> r1.reduce(lambda x,y:x+y)
+150
+>>> 
+....................................................................................
+9. sum() : finds the sum of RDD elements.
+>>> x = [10,20,30,40,50]
+>>> r1 = sc.parallelize(x)
+>>> r1.sum()
+150
+>>> 
+.....................................................................................
+
+10. max() : Finds the max elements of a rdd
+>>> x = [10,20,30,40,50]
+>>> r1 = sc.parallelize(x)
+>>> r1.max()
+50
+>>> 
+....................................................................................
+
+11. min() : FInds the mean element of rdd
+>>> x = [10,20,30,40,50]
+>>> r1 = sc.parallelize(x)
+>>> r1.min()
+10
+>>> 
+
+..................................................................................
+
+12. count() : counts number of elements of a RDD.
+>>> x = [10,20,30,40,50]
+>>> r1 = sc.parallelize(x)
+>>> r1.count()
+5
+>>> 
+
+..................................................................................
+>>> x = [10,20,30,40,50]
+>>> r1 = sc.parallelize(x)
+>>> r1.sum()/r1.count()
+30.0
+>>> 
+
+..................................................................................
+13. saveAsTextFile(path) : saving the output of RDD as text file into specified path.
+
+>>> r1.saveAsTextFile("hdfs://localhost:9000/pyspark330pm/res1")  Note: By default 4 part file will be created.
+
+$ hadoop fs -ls /pyspark330pm/res1
+
+$ hadoop fs -cat /pyspark330pm/res1/part-0000
+..................................................................................
+done
+                                                                       
+																	   
+amit@ubuntu:~/PRAC$ hadoop fs -cat /pyspark330pm/emp1.txt
+2024-02-20 17:00:11,507 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+101,miller,40000,m,11,hyd
+102,blake,50000,m,12,pune
+103,sony,60000,f,11,pune
+104,sita,70000,f,12,hyd
+105,john,8000,m,13,hyd
+amit@ubuntu:~/PRAC$ 
+...................................................................................................................
+
+Different ways of creating RDD's :-
+...................................
+
+1st method - loading from hdfs.
+
+Whenever we load a hdfs file using sparkcontext then a RDD is created.
+>>> rdd1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> rdd1.collect()
+['101,miller,40000,m,11,hyd', '102,blake,50000,m,12,pune', '103,sony,60000,f,11,pune', '104,sita,70000,f,12,hyd', '105,john,8000,m,13,hyd']
+>>> rdd1.count()
+5                                                                               
+>>> 
+................................................................................................
+2nd way to create a RDD:-
+When we perform transformation on a RDD, then the resultant is also a RDD.
+
+3rd way to create a RDD:-
+If we parallelize a python object, then RDD is created.
+................................................................................................
+# To get number of partitions.
+>>> x = [10,20,30,40,50,60,70,80]
+>>> r1 = sc.parallelize(x)
+>>> r1.getNumPartitions()
+4
+>>> 
+........................................................................
+# I want to increase the partitions while parallelizing it.
+>>> x = [10,20,30,40,50,60,70,80]		 
+>>> r2 = sc.parallelize(x,2)
+>>> r2.getNumPartitions()
+2
+>>> r2.saveAsTextFile("hdfs://localhost:9000/pyspark330pm/res2") 
+Note : - You will see 2 partitions, as u created 2.
+>>> r2.count()
+8                                                                               
+>>> 
+........................................................................
+I dont want 2 partitions, make it into one partitions. for that we coalesce() function which is a transformation function.
+
+coalesce() :- It is a transformation to decrease or combine the partitions of a RDD.
+
+>>> x = [10,20,30,40,50,60,70,80]		 
+>>> r2 = sc.parallelize(x,2)
+>>> r2.getNumPartitions()
+2
+>>> r3 = r2.coalesce(1)
+>>> r3.getNumPartitions()
+1
+........................................................................
+>>> x = [10,20,30,40,50,60,70,80]		 
+>>> r2 = sc.parallelize(x,2)
+>>> r2.getNumPartitions()
+2
+>>> r4 = r2.coalesce(3)
+>>> r4.getNumPartitions()
+2                                
+Note :- Here it proves that using coalesce, we can only decrease the number of partitions but we cannot increase.
+..............................................................................
+Increasing the number of parttions : 2 ways
+1. While loading the file, we need to specify the number of partitions we want.
+2. While parallelizing, we need to specify the number of partitions we want.
+
+amit@ubuntu:~/PRAC$ hadoop fs -cat /pyspark330pm/emp1.txt
+
+101,miller,40000,m,11,hyd
+102,blake,50000,m,12,pune
+103,sony,60000,f,11,pune
+104,sita,70000,f,12,hyd
+105,john,8000,m,13,hyd
+amit@ubuntu:~/PRAC$ 
+
+# Now creating a RDD
+>>> r1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> r1.getNumPartitions()
+2
+>>> # To increase number of partitons.
+>>> r2 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt",3)
+>>> r2.getNumPartitions()
+3
+>>> 
+
+# Second way of increasing the partitions while parallelizing.
+
+Now, question is when do we parallelize? Ans is, when we convert python object to spark object. We do parallelize.
+
+>>> x=[10,20,30]           Note -  This is python object
+>>> y=sc.parallelize(x)    Note - This is RDD.
+>>> y.getNumPartitions()
+4
+>>> y = sc.parallelize(x,3)
+>>> 
+>>> y.getNumPartitions()
+3
+>>> y.saveAsTextFile("hdfs://localhost:9000/pyspark330pm/res5")
+>>>    
+hadoop fs -ls /pyspark330pm/res5
+ In output, you will see 3 part file.
+.........................................................................................................
+Filtering Operations:-
+......................
+>>> rdd1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> rdd1.collect()
+['101,miller,40000,m,11,hyd', '102,blake,50000,m,12,pune', '103,sony,60000,f,11,pune', '104,sita,70000,f,12,hyd', '105,john,8000,m,13,hyd']
+>>> #if i do map transformation, it will be applied to all record
+>>> rdd2 = rdd1.map(lambda x:x.split(","))
+>>> rdd2.collect()
+[['101', 'miller', '40000', 'm', '11', 'hyd'], ['102', 'blake', '50000', 'm', '12', 'pune'], ['103', 'sony', '60000', 'f', '11', 'pune'], ['104', 'sita', '70000', 'f', '12', 'hyd'], ['105', 'john', '8000', 'm', '13', 'hyd']]
+>>> # every string in a line will convert as list based on line wise. Means we converted into list.
+>>> # lambda x means each record.
+>>> rdd3 = rdd2.map(lambda x:(x[1],int(x[2])))
+>>> rdd3.collect()
+[('miller', 40000), ('blake', 50000), ('sony', 60000), ('sita', 70000), ('john', 8000)]
+>>> rdd4 = rdd3.filter(lambda x:x[1]>50000)
+>>> rdd4.collect()
+[('sony', 60000), ('sita', 70000)]
+>>> 
+.........................................................
+
+>>> # Filter the records of a particular department no 12.
+
+>>> rdd2.collect()
+[['101', 'miller', '40000', 'm', '11', 'hyd'], ['102', 'blake', '50000', 'm', '12', 'pune'], ['103', 'sony', '60000', 'f', '11', 'pune'], ['104', 'sita', '70000', 'f', '12', 'hyd'], ['105', 'john', '8000', 'm', '13', 'hyd']]
+
+>>> rdd5 = rdd2.filter(lambda x:x[4] == '12')    # for each record , extract 4th index.
+>>> rdd5.collect()
+[['102', 'blake', '50000', 'm', '12', 'pune'], ['104', 'sita', '70000', 'f', '12', 'hyd']]
+>>> 
+......................................................................
+>>> # Wordcount : To convert the number of occurances of each word in a file
+>>> lines = ["Spark us for processing","Spark is in-memory","Spark is lazy evaluated"]
+>>> #Each Word occured how many times.
+>>> type(lines)
+<class 'list'>
+>>> lines1 = sc.parallelize(lines)
+>>> words = lines1.map(lambda x:x.split(" "))
+>>> type(words)
+<class 'pyspark.rdd.PipelinedRDD'>
+>>> words.collect()
+[['Spark', 'us', 'for', 'processing'], ['Spark', 'is', 'in-memory'], ['Spark', 'is', 'lazy', 'evaluated']]
+>>> lines1.collect()
+['Spark us for processing', 'Spark is in-memory', 'Spark is lazy evaluated']
+>>> 
+>>> 
+>>> words1 = words.flatMap(lambda x:x)
+>>> words1.collect()
+['Spark', 'us', 'for', 'processing', 'Spark', 'is', 'in-memory', 'Spark', 'is', 'lazy', 'evaluated']
+>>> #reduceByKey to apply, we require (k,v) pair.
+>>> #add 1 to each word to form (k,v) pair
+
+>>> pair = words1.map(lambda x:(x,1))
+>>> pair.collect()
+[('Spark', 1), ('us', 1), ('for', 1), ('processing', 1), ('Spark', 1), ('is', 1), ('in-memory', 1), ('Spark', 1), ('is', 1), ('lazy', 1), ('evaluated', 1)]
+>>> res = pair.reduceByKey(lambda x,y:x+y)
+>>> res.collect()
+[('us', 1), ('processing', 1), ('in-memory', 1), ('lazy', 1), ('Spark', 3), ('is', 2), ('evaluated', 1), ('for', 1)]
+>>> 
+........................................................................................................
+
+Grouping and Aggregations:-
+1. Single grouping and single Aggregation.  --> ex- i want H.R dept  total sal, i want Sales dept  total salary.
+2. MultiGrouping single aggregation
+3. Single grouping and multiple aggregation
+4. Multi grouping and multiple aggregations.
+.............................................................................
+
+1. Single grouping and single aggregation:-
+# I want department wise total salary # select dno, sum(sal) from emp group by dno;
+
+#First step - create RDD
+>>> rdd1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> rdd1.collect()
+['101,miller,40000,m,11,hyd', '102,blake,50000,m,12,pune', '103,sony,60000,f,11,pune', '104,sita,70000,f,12,hyd', '105,john,8000,m,13,hyd']
+>>> # split above result into words.
+>>> rdd2 = rdd1.map(lambda x:x.split(","))
+>>> # Step 3 - Extract department no and salary and create a key value pair.
+>>> rdd3 = rdd2.map(lambda x:(x[4],int(x[2])))
+>>> rdd3.collect()
+[('11', 40000), ('12', 50000), ('11', 60000), ('12', 70000), ('13', 8000)]      
+>>> #above output is like key value . Now we can apply reduceByKey on above key value pair. 
+>>> res = rdd3.reduceByKey(lambda x,y:x+y)
+>>> res.collect()
+[('12', 120000), ('11', 100000), ('13', 8000)]
+..................................................................................
+2. MultiGrouping single aggregation
+
+........................................................................
+3. Single grouping and multiple aggregation
+# i want output -> how many male employee are there and what is their total salary? same with female employee
+
+>>> rdd1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> rdd1.collect()
+['101,miller,40000,m,11,hyd', '102,blake,50000,m,12,pune', '103,sony,60000,f,11,pune', '104,sita,70000,f,12,hyd', '105,john,8000,m,13,hyd']
+>>> rdd2 = rdd1.map(lambda x:x.split(","))
+>>> rdd2.collect()
+[['101', 'miller', '40000', 'm', '11', 'hyd'], ['102', 'blake', '50000', 'm', '12', 'pune'], ['103', 'sony', '60000', 'f', '11', 'pune'], ['104', 'sita', '70000', 'f', '12', 'hyd'], ['105', 'john', '8000', 'm', '13', 'hyd']]
+>>> #if there are one lakh record, u will get 1 lakh inner list.
+>>> #step 3: Extract sex,sal and create key value pairs.
+>>> rdd3  = rdd2.map(lambda x:(x[3],int(x[2])))
+>>> # Now we can apply reduceByKey() i.e reduceByKey can be applied on key value pair
+>>> res = rdd3.reduceByKey(lambda x,y:x+y)
+>>> res.collect()
+[('m', 98000), ('f', 130000)]
+>>> 
+............................................................................
+4. Multi grouping and multiple aggregations.
+
+# In dept 11, how many males employee and tehir total salary . how many female employee and total sal
+
+rdd1 = sc.textFile("hdfs://loca")
+>> rdd1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> #step 2 - splitting each record in string gives outpust as list.
+>>> rdd2 = rdd1.map(lambda x:x.split(","))
+>>> #Step3 - Extract (dno,sex),sal and create(k,v) pairs
+>>> 
+>>> rdd3 = rdd2.map(lambda x:((x[4],x[3]),int(x[2])))
+>>> rdd3.collect()
+[(('11', 'm'), '40000'), (('12', 'm'), '50000'), (('11', 'f'), '60000'), (('12', 'f'), '70000'), (('13', 'm'), '8000')]
+>>> #We got output in key value pair, Now apply reduceByKey
+>>> res = rdd3.reduceByKey(lambda x,y:x+y)
+>>> res.collect()
+[(('11', 'm'), 40000), (('11', 'f'), 60000), (('13', 'm'), 8000), (('12', 'm'), 50000), (('12', 'f'), 70000)]
+>>> 
+
+
+..............................................................................
+
+By using function we can group and agrregate
+
+> 
+>>> rdd1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> def makepair(x):
+...     words=x.split(",")
+...     dno = int(words[4])
+...     sex = words[3]
+...     sal = int(words[2])
+...     pair = ((dno,sex),sal)
+...     return pair
+... 
+>>> dnosalsexpair = rdd1.map(lambda x:makepair(x))
+[((11, 'm'), 40000), ((12, 'm'), 50000), ((11, 'f'), 60000), ((12, 'f'), 70000), ((13, 'm'), 8000)]
+>>> res = dnosalsexpair.reduceByKey(lambda x,y:x+y)
+>>> res.collect()
+[((11, 'm'), 40000), ((11, 'f'), 60000), ((13, 'm'), 8000), ((12, 'm'), 50000), ((12, 'f'), 70000)]
+>>> 
+..............................................................................
+3. SIngle grouping and multiple aggregations:
+
+select dno,sum(sal),avg(sal),min(sal),count(*) from emp group by dno;
+
+>>> rdd1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> rdd1.collect()
+['101,miller,40000,m,11,hyd', '102,blake,50000,m,12,pune', '103,sony,60000,f,11,pune', '104,sita,70000,f,12,hyd', '105,john,8000,m,13,hyd']
+>>> #step2 - splitting each record into string-------> we get list
+>>> rdd2 = rdd1.map(lambda x:x.split(","))
+>>> #step 3 - extract (dno,sal) and create(k,v) pairs
+>>> dnosalpair = rdd2.map(lambda x:(int(x[4]),int(x[2])))
+>>> dnosalpair.collect()
+[(11, 40000), (12, 50000), (11, 60000), (12, 70000), (13, 8000)]                
+>>> #step4: for multiple aggregation, we use groupBYKey() and we get iterable object, covert that into list and perform multiple aggregation.
+>>> grp = dnosalpair.groupByKey()
+>>> grp.collect()
+[(12, <pyspark.resultiterable.ResultIterable object at 0x7efc56226c20>), (11, <pyspark.resultiterable.ResultIterable object at 0x7efc562267d0>), (13, <pyspark.resultiterable.ResultIterable object at 0x7efc56226a40>)]
+>>> #Convert this iterable object into list
+>>> grp1 = grp.map(lambda x:(x[0],list(x[1])))
+>>> grp1.collect()
+[(12, [50000, 70000]), (11, [40000, 60000]), (13, [8000])]
+
+>>> # Same output writing in single line.
+>>> grp1 = dnosalpair.groupByKey().map(lambda x:(x[0],list(x[1])))
+>>> grp1.collect()
+[(12, [50000, 70000]), (11, [40000, 60000]), (13, [8000])]
+
+
+>>> def extract(x):
+...     dno = x[0]
+...     y = x[1]
+...     sum1 = sum(y)
+...     max1 = max(y)
+...     min1 = min(y)
+...     cnt = len(y)
+...     avg = sum1/cnt
+...     res = (dno,sum1,max1,min1,cnt,avg)
+...     return res
+... 
+>>> aggr = grp1.map(lambda x:extract(x))
+>>> aggr.collect()
+[(12, 120000, 70000, 50000, 2, 60000.0), (11, 100000, 60000, 40000, 2, 50000.0), (13, 8000, 8000, 8000, 1, 8000.0)]
+>>> 
+
+...................................................................................................................
+
+# step1 : LOading the file
+>>> emps = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> emps.collect()
+['101,miller,40000,m,11,hyd', '102,blake,50000,m,12,pune', '103,sony,60000,f,11,pune', '104,sita,70000,f,12,hyd', '105,john,8000,m,13,hyd']
+>>> #Step2 : Splitting based on delimeter
+>>> emplists = emps.map((lambda x:x.split(",")))
+>>> emplists.collect()
+[['101', 'miller', '40000', 'm', '11', 'hyd'], ['102', 'blake', '50000', 'm', '12', 'pune'], ['103', 'sony', '60000', 'f', '11', 'pune'], ['104', 'sita', '70000', 'f', '12', 'hyd'], ['105', 'john', '8000', 'm', '13', 'hyd']]
+>>> #Step3. Extracting the required fields -> (dno,sex) as key and sal as val
+dnosexsalpair = emplists.map(lambda x:(x[4],x[3],x[2]))
+>>> dnosexsalpair.collect()
+[('11', 'm', '40000'), ('12', 'm', '50000'), ('11', 'f', '60000'), ('12', 'f', '70000'), ('13', 'm', '8000')]
+>>> dnosexsalpair = emplists.map(lambda x:((x[4],x[3]),x[2]))
+>>> dnosexsalpair.collect()
+[(('11', 'm'), '40000'), (('12', 'm'), '50000'), (('11', 'f'), '60000'), (('12', 'f'), '70000'), (('13', 'm'), '8000')]
+
+>>> dnosexsalpair = emplists.map(lambda x:((x[4],x[3]),int(x[2])))
+>>> dnosexsalpair.collect()
+[(('11', 'm'), 40000), (('12', 'm'), 50000), (('11', 'f'), 60000), (('12', 'f'), 70000), (('13', 'm'), 8000)]
+>>> 
+
+....................................................................................................................
+
+>>> #step4 : groupByKey
+>>> 
+>>> grp = dnosexsalpair.groupByKey()
+>>> grp.collect()
+[(('11', 'm'), <pyspark.resultiterable.ResultIterable object at 0x7efc562257e0>), (('11', 'f'), <pyspark.resultiterable.ResultIterable object at 0x7efc56227880>), (('13', 'm'), <pyspark.resultiterable.ResultIterable object at 0x7efc563febf0>), (('12', 'm'), <pyspark.resultiterable.ResultIterable object at 0x7efc563fe920>), (('12', 'f'), <pyspark.resultiterable.ResultIterable object at 0x7efc563fffa0>)]
+>>> 
+
+>>> # Converting iterable object to list
+>>> 
+>>> grp1 = grp.map(lambda x:(x[0],list(x[1])))
+>>> grp1.collect()
+[(('11', 'm'), [40000]), (('11', 'f'), [60000]), (('13', 'm'), [8000]), (('12', 'm'), [50000]), (('12', 'f'), [70000])]
+>>> 
+
+...............................................................................................................................
+
+# Step5 Performing multiple aggregations by defining a function.
+
+>> def extract(x):
+...     dno = x[0][0]
+...     sex = x[0][1]
+...     y = x[1]
+...     sum1 = sum(y)
+...     max1 = max(y)
+...     min1 = min(y)
+...     res = (dno,sex,sum1,max1,min1)
+...     return res
+... 
+>>> aggr = grp1.map(lambda x:extract(x))
+>>> aggr.collect()
+[('11', 'm', 40000, 40000, 40000), ('11', 'f', 60000, 60000, 60000), ('13', 'm', 8000, 8000, 8000), ('12', 'm', 50000, 50000, 50000), ('12', 'f', 70000, 70000, 70000)]
+>>> 
+see video no-> (session 19) from topic "difference between groupByKey() and reduceByKey()"
+..................................................................................................................
+
+
+Ques :  Diff between Persist and Cache?
+Ans:-
+
+
+
+...............................................................................
+# Creating DataFrames :- In 4 ways
+1). From RDD's
+2). From local Objects(python object)
+3). From results of queries
+4). From external DataSources.
+...............................................................................
+1). Creating Dataframes from RDD's  -----------> RDD.toDF
+
+2). For converting local object or RDD into DF, we use the following method
+
+spark.createDataFrame(List/RDD, schema)
+1st parameter ----> either list or RDD
+2nd parameter -----> column names
+
+We can create Dataframe using
+1) Spark session ==>  example:  df = spark.createDataFrame(RDD)   # Here spark is the spark session object.
+
+2) sqlContext ==> example: df = sqlContext.createDataFrame(RDD)    # Using sqlContext
+
+................................................................................
+4) Different ways of providing schema
+
+1) While creating DF, Providing schema
+2) Using Dictionary
+3) Using Row Object
+4) Using Struct Type
+
+Example:-1 Creating DataFrames from lists(local objects)
+
+>>> x = [('miller',30),('Blake',35)]
+>>> df = spark.createDataFrame(x)
+>>> df.show()
++------+---+                                                                    
+|    _1| _2|
++------+---+
+|miller| 30|
+| Blake| 35|
++------+---+
+
+>>> 
+..................................................................................
+
+>>> # Creating dataframe with schema
+>>> x = [('miller',30),('blake',35)]
+>>> df = spark.createDataFrame(x,['NAME','AGE']
+... )
+>>> df.show()
++------+---+
+|  NAME|AGE|
++------+---+
+|miller| 30|
+| blake| 35|
++------+---+
+..............................................................................
+>>> # df.count() : To count number of rows in dataFrame
+>>> df.count()
+2
+>>> 
+..............................................................................
+>>> # printSchema() : To print the column names
+>>> df.printSchema()
+root
+ |-- NAME: string (nullable = true)
+ |-- AGE: long (nullable = true)
+
+>>> 
+...................................................................................
+>>> #Using Dictionry providing Schema, creating DF
+>>> x = [{'name':'ajay','age':25},{'name':'rahul','age':30}]
+>>> df = spark.createDataFrame(x)
+>>> df.show()
++---+-----+
+|age| name|
++---+-----+
+| 25| ajay|
+| 30|rahul|
++---+-----+
+
+>>> 
+......................................................................................
+>>> x = [{'name':'ajay','age':25},{'name':'rahul','age':30},{'city':'chennei'}]
+>>> df = spark.createDataFrame(x)
+>>> df.show()
++----+-----+-------+
+| age| name|   city|
++----+-----+-------+
+|  25| ajay|   NULL|
+|  30|rahul|   NULL|
+|NULL| NULL|chennei|
++----+-----+-------+
+
+>>> 
+........................................................
+>>> # Creating a DF from a RDD:
+>>> x = [('miller',25),('ajay',30),('Blake',45)]
+>>> rdd = sc.parallelize(x)
+>>> df1 = spark.createDataFrame(rdd)
+>>> df1.show()
++------+---+
+|    _1| _2|
++------+---+
+|miller| 25|
+|  ajay| 30|
+| Blake| 45|
++------+---+
+.........................................................................................
+#Adding schema to a RDD
+
+>>> df2 = spark.createDataFrame(rdd,['name','age'])
+>>> df2.show()
++------+---+
+|  name|age|
++------+---+
+|miller| 25|
+|  ajay| 30|
+| Blake| 45|
++------+---+
+
+.........................................................................................
+7. Creating a DataFrame using ROW object.
+
+>>> x = [('miller',25),('ajay',30),('blake',45)]
+>>> rdd1 = sc.parallelize(x)
+>>> # Now providing schema to rdd
+>>> from pyspark.sql import Row
+>>> customer = Row('name','age')
+>>> type(customer)
+<class 'pyspark.sql.types.Row'>
+>>> cust = rdd1.map(lambda p:customer(*p))
+>>> cust.collect()
+[Row(name='miller', age=25), Row(name='ajay', age=30), Row(name='blake', age=45)]
+>>> df3 = spark.createDataFrame(cust)
+>>> df3.show()
++------+---+
+|  name|age|
++------+---+
+|miller| 25|
+|  ajay| 30|
+| blake| 45|
++------+---+
+
+....................................................................................................
+8. >>> # Providing schema using StructType
+>>> from pyspark.sql.types import *
+>>> schema = StructType([
+...     StructField("Name", StringType(),True),
+...     StructField("Age", IntegerType(), True)])
+>>> df4 = spark.createDataFrame(rdd1,schema)
+>>> df4.show()
++------+---+
+|  Name|Age|
++------+---+
+|miller| 25|
+|  ajay| 30|
+| blake| 45|
++------+---+
+.......................................................................................................
+9). Changing schema or column names.  OR how to rename column name of an rdd
+https://sparkbyexamples.com/spark/rename-a-column-on-spark-dataframes/#google_vignette
+	change ---> name to empname
+	       ---> age to empname
+
+
+.........................................................................................................
+Note :- Different ways to create dataframe in spark
+https://medium.com/sparkbyexamples/different-ways-to-create-dataframe-in-spark-spark-by-examples-423bd3d53134
+
+.........................................................................................................
+11) Creating emp records.
+>>> from pyspark.sql import Row
+>>> x = [(101,'miller',10000,'m',11),(102,'blake',20000,'m',12),(103,'sony',30000,'f',13),(104,'sita',40000,'f',11),(105,'james',50000,'m',12)]
+>>> r1 = sc.parallelize(x)
+>>> df = spark.createDataFrame(r1,['eid','ename','sal','sex','dno'])
+>>> df.show()                                                                   
++---+------+-----+---+---+
+|eid| ename|  sal|sex|dno|
++---+------+-----+---+---+
+|101|miller|10000|  m| 11|
+|102| blake|20000|  m| 12|
+|103|  sony|30000|  f| 13|
+|104|  sita|40000|  f| 11|
+|105| james|50000|  m| 12|
++---+------+-----+---+---+
+
+>>> 
+.......................................................................................................
+12). Loadin data from hdfs and creating rdd and converting to DF
+
+amit@ubuntu:~/PRAC$ hadoop fs -cat /pyspark330pm/emp1.txt
+2024-02-23 10:55:31,301 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+101,miller,40000,m,11,hyd
+102,blake,50000,m,12,pune
+103,sony,60000,f,11,pune
+104,sita,70000,f,12,hyd
+105,john,8000,m,13,hyd
+
+........................................................................................................
+>>> r1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> r1.collect()
+['101,miller,40000,m,11,hyd', '102,blake,50000,m,12,pune', '103,sony,60000,f,11,pune', '104,sita,70000,f,12,hyd', '105,john,8000,m,13,hyd']
+>>> r2 = r1.map(lambda x:x.split(","))
+>>> r2.collect()
+[['101', 'miller', '40000', 'm', '11', 'hyd'], ['102', 'blake', '50000', 'm', '12', 'pune'], ['103', 'sony', '60000', 'f', '11', 'pune'], ['104', 'sita', '70000', 'f', '12', 'hyd'], ['105', 'john', '8000', 'm', '13', 'hyd']]
+>>> 
+........................................................................................................
+>>> r3 = r2.map(lambda x:Row(eid = int(x[0]),ename = x[1], sal=int(x[2]), sex= (x[3]), dno = int(x[4]), city = x[5]))
+>>> df = spark.createDataFrame(r3)
+>>> df.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+...........................................................................................................
+Different DataFrame API's:-
+Creating A DataFrame
+
+>>> r1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> r2 = r1.map(lambda x:x.split(","))
+>>> r2.collect()
+[['101', 'miller', '40000', 'm', '11', 'hyd'], ['102', 'blake', '50000', 'm', '12', 'pune'], ['103', 'sony', '60000', 'f', '11', 'pune'], ['104', 'sita', '70000', 'f', '12', 'hyd'], ['105', 'john', '8000', 'm', '13', 'hyd']]
+>>> 
+>>> from pyspark.sql import Row
+>>> r3 = r2.map(lambda x:Row(eid = int(x[0]),ename = x[1],sal = int(x[2]),sex=x[3],dno = int(x[4]),city=x[5]))
+>>> df = spark.createDataFrame(r3)
+>>> df.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+............................................................................................................
+
+Different API's of DataFrame.
+
+1). select() : To select or to extract a particular column
+
+>>> from pyspark.sql import Row
+>>> r3 = r2.map(lambda x:Row(eid = int(x[0]),ename = x[1],sal = int(x[2]),sex=x[3],dno = int(x[4]),city=x[5]))
+>>> df = spark.createDataFrame(r3)
+>>> df.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> e1 = df.select("ename")
+>>> e1.show()
++------+
+| ename|
++------+
+|miller|
+| blake|
+|  sony|
+|  sita|
+|  john|
++------+
+
+# Transformation on a Dataframe returns a Dataframe. Here df --------------------> has 6 fields
+e1 is a dataframe -----------------> with one field
+
+...........................................................
+2). To extract multiple columns
+
+>>> from pyspark.sql import Row
+>>> r3 = r2.map(lambda x:Row(eid = int(x[0]),ename = x[1],sal = int(x[2]),sex=x[3],dno = int(x[4]),city=x[5]))
+>>> df = spark.createDataFrame(r3)
+>>> df.select("ename","sal").show()
++------+-----+
+| ename|  sal|
++------+-----+
+|miller|40000|
+| blake|50000|
+|  sony|60000|
+|  sita|70000|
+|  john| 8000|
++------+-----+
+
+>>> 
+................................................................................
+#Transformations
+Adding 3000 to each employee salary as bonus.
+
+>>> from pyspark.sql import Row
+>>> r3 = r2.map(lambda x:Row(eid = int(x[0]),ename = x[1],sal = int(x[2]),sex=x[3],dno = int(x[4]),city=x[5]))
+>>> df = spark.createDataFrame(r3)
+>>> df2 = df.select(df.ename,df.sal+3000)
+>>> df2.show()
++------+------------+
+| ename|(sal + 3000)|
++------+------------+
+|miller|       43000|
+| blake|       53000|
+|  sony|       63000|
+|  sita|       73000|
+|  john|       11000|
++------+------------+
+
+>>> 
+.....................................................................................
+selectExpr()
+
+>>> df.selectExpr("ename","sal+3000").show()
++------+------------+
+| ename|(sal + 3000)|
++------+------------+
+|miller|       43000|
+| blake|       53000|
+|  sony|       63000|
+|  sita|       73000|
+|  john|       11000|
++------+------------+
+
+>>> 
+........................................................................................
+
+5). filter():
+Filter only those employees whose sal > 60000
+
+>>> df3 = df.filter(df.sal > 6000)
+>>> 
+>>> df3.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+........................................................................................
+>>> df3 = df.filter(df.sal > 60000).select("ename","sal")
+>>> df3.show()
++-----+-----+
+|ename|  sal|
++-----+-----+
+| sita|70000|
++-----+-----+
+
+>>> df4 = df.filter(df.dno == 11).select("ename","sal")
+>>> df4.show()
++------+-----+
+| ename|  sal|
++------+-----+
+|miller|40000|
+|  sony|60000|
++------+-----+
+
+.......................................................................................
+6). collect()
+
+>> df.collect()
+[Row(eid=101, ename='miller', sal=40000, sex='m', dno=11, city='hyd'), Row(eid=102, ename='blake', sal=50000, sex='m', dno=12, city='pune'), Row(eid=103, ename='sony', sal=60000, sex='f', dno=11, city='pune'), Row(eid=104, ename='sita', sal=70000, sex='f', dno=12, city='hyd'), Row(eid=105, ename='john', sal=8000, sex='m', dno=13, city='hyd')]
+>>> 
+.......................................................................
+7).  count(): Returns the number of rows in a dataframe.
+>>> df.count()
+5
+..................................................................
+
+8). columns: returns column names as list.
+
+>>> df.columns
+['eid', 'ename', 'sal', 'sex', 'dno', 'city']
+>>> 
+.................................................................
+9). printSchema()
+root
+ |-- eid: long (nullable = true)
+ |-- ename: string (nullable = true)
+ |-- sal: long (nullable = true)
+ |-- sex: string (nullable = true)
+ |-- dno: long (nullable = true)
+ |-- city: string (nullable = true)
+..................................................................
+10). describe()
+
+>>> df.describe().show()
+24/02/23 11:53:22 WARN SparkStringUtils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.
++-------+------------------+-----+------------------+----+------------------+----+
+|summary|               eid|ename|               sal| sex|               dno|city|
++-------+------------------+-----+------------------+----+------------------+----+
+|  count|                 5|    5|                 5|   5|                 5|   5|
+|   mean|             103.0| NULL|           45600.0|NULL|              11.8|NULL|
+| stddev|1.5811388300841898| NULL|23807.561823924767|NULL|0.8366600265340753|NULL|
+|    min|               101|blake|              8000|   f|                11| hyd|
+|    max|               105| sony|             70000|   m|                13|pune|
++-------+------------------+-----+------------------+----+------------------+----+
+
+>>> 
+......................................................................................
+
+# Performs different aggregations on numerical columns.
+
+11). distinct() :Returns a new dataframe containing distinct rows.
+
+I want to know the deptnos.
+I want to know the distinct dnos.
+
+>>> df6 = df.select("dno")
+>>> df6.show()
++---+
+|dno|
++---+
+| 11|
+| 12|
+| 11|
+| 12|
+| 13|
++---+
+
+>>> df6.distinct().show()
++---+
+|dno|
++---+
+| 12|
+| 11|
+| 13|
++---+
+
+>>> 
+.........................................................................................
+#ANother way to find non dublicate is :-
+
+>>> df.select("dno").distinct().show()
++---+
+|dno|
++---+
+| 12|
+| 11|
+| 13|
++---+
+
+.........................................................................................
+12). drop(): Drops a particular column
+
+df7 = df.drop("sex")
+df7.show()
+
+>>> df7 = df.drop("sex")
+>>> df7.show()
++---+------+-----+---+----+
+|eid| ename|  sal|dno|city|
++---+------+-----+---+----+
+|101|miller|40000| 11| hyd|
+|102| blake|50000| 12|pune|
+|103|  sony|60000| 11|pune|
+|104|  sita|70000| 12| hyd|
+|105|  john| 8000| 13| hyd|
++---+------+-----+---+----+
+
+.................................................................
+# We can also drop multiple columns at a time.
+
+>>> df8 = df.drop("sex","dno")
+>>> df8.show()
++---+------+-----+----+
+|eid| ename|  sal|city|
++---+------+-----+----+
+|101|miller|40000| hyd|
+|102| blake|50000|pune|
+|103|  sony|60000|pune|
+|104|  sita|70000| hyd|
+|105|  john| 8000| hyd|
++---+------+-----+----+
+
+>>> 
+.................................................................
+13). dropDublicates(): drop dublicates based on multiple columns
+
+>>> df.dropDuplicates(["dno","sex"])
+DataFrame[eid: bigint, ename: string, sal: bigint, sex: string, dno: bigint, city: string]
+>>> df.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+..............................................................
+>>> #first() : returns the 1st row in the data frame.
+
+>>> r1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> r2 = r1.map(lambda x:x.split(","))
+>>> from pyspark.sql import Row
+>>> r3 = r2.map(lambda x:Row(eid=int(x[0]),ename=x[1],sal=int(x[2]),sex=x[3],dno=int(x[4]),city=x[5]))
+>>> df = spark.createDataFrame(r3)
+>>> df.show()                                                                   
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+.......................................................................
+>>> df.first()
+Row(eid=101, ename='miller', sal=40000, sex='m', dno=11, city='hyd')
+>>> 
+.......................................................................
+15). foreach()   : Applying a function foreach row of a dataframe
+
+>>> def display(df):
+...     print(df.ename)
+... 
+>>> df.foreach(display)
+sitamiller
+
+john
+blake
+sony
+>>> df.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+
+...........................................................................
+
+16) sort()    :  default sort is ascending order.
+
+>>> df.sort(df.sal).show()  
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|105|  john| 8000|  m| 13| hyd|
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+.....................................................................
+ex:2- If i want sal in descending order.
+
+>>> df.sort(df.sal.desc()).show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|104|  sita|70000|  f| 12| hyd|
+|103|  sony|60000|  f| 11|pune|
+|102| blake|50000|  m| 12|pune|
+|101|miller|40000|  m| 11| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+.......................................................................
+17. orderBy()
+
+>> df.orderBy("ename").show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|102| blake|50000|  m| 12|pune|
+|105|  john| 8000|  m| 13| hyd|
+|101|miller|40000|  m| 11| hyd|
+|104|  sita|70000|  f| 12| hyd|
+|103|  sony|60000|  f| 11|pune|
++---+------+-----+---+---+----+
+
+>>> 
+.........................................................................
+>>> df.rdd.getNumPartitions()      : dataframe is converting to rdd and getting number of partitions
+2
+>>> 
+..........................................................................
+19) i), repartition():
+>>> df.repartition(5).rdd.getNumPartitions()
+5
+>>> 
+..........................................................................
+ii). Repartition on specified column. It will shuffle the data.
+
+>> df2 = df.repartition("dno","sex")
+>>> df2.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|101|miller|40000|  m| 11| hyd|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+............................................................................
+20). replace()
+
+>>> df2 = df.replace(['m','f'],['male','female'],'sex')
+>>> df2.show()
++---+------+-----+------+---+----+
+|eid| ename|  sal|   sex|dno|city|
++---+------+-----+------+---+----+
+|101|miller|40000|  male| 11| hyd|
+|102| blake|50000|  male| 12|pune|
+|103|  sony|60000|female| 11|pune|
+|104|  sita|70000|female| 12| hyd|
+|105|  john| 8000|  male| 13| hyd|
++---+------+-----+------+---+----+
+
+............................................................................
+>>> df2 = df.replace(['miller','john'],['ajay','james'],'ename')
+>>> df2.show()
++---+-----+-----+---+---+----+
+|eid|ename|  sal|sex|dno|city|
++---+-----+-----+---+---+----+
+|101| ajay|40000|  m| 11| hyd|
+|102|blake|50000|  m| 12|pune|
+|103| sony|60000|  f| 11|pune|
+|104| sita|70000|  f| 12| hyd|
+|105|james| 8000|  m| 13| hyd|
++---+-----+-----+---+---+----+
+
+>>> 
+.............................................................................
+21). To change schema or the column names.
+
+eid  --> eco (employee code)
+sal  --> income
+sex  --> gender
+
+>>> df2 = df.toDF('ecode','ename','income','gender','dno','city')
+>>> df2.show()
++-----+------+------+------+---+----+
+|ecode| ename|income|gender|dno|city|
++-----+------+------+------+---+----+
+|  101|miller| 40000|     m| 11| hyd|
+|  102| blake| 50000|     m| 12|pune|
+|  103|  sony| 60000|     f| 11|pune|
+|  104|  sita| 70000|     f| 12| hyd|
+|  105|  john|  8000|     m| 13| hyd|
++-----+------+------+------+---+----+
+
+>>> 
+...............................................................................
+>>> # withColumnRenamed(existing,new): Renaming a particular column
+>>> df.withColumnRenamed("ename","empname").show()
++---+-------+-----+---+---+----+
+|eid|empname|  sal|sex|dno|city|
++---+-------+-----+---+---+----+
+|101| miller|40000|  m| 11| hyd|
+|102|  blake|50000|  m| 12|pune|
+|103|   sony|60000|  f| 11|pune|
+|104|   sita|70000|  f| 12| hyd|
+|105|   john| 8000|  m| 13| hyd|
++---+-------+-----+---+---+----+
+
+>>> 
+.................................................................................
+23). withColumn(): adding a new column
+>> df.withColumn('tax',df.sal-5000).show()
++---+------+-----+---+---+----+-----+
+|eid| ename|  sal|sex|dno|city|  tax|
++---+------+-----+---+---+----+-----+
+|101|miller|40000|  m| 11| hyd|35000|
+|102| blake|50000|  m| 12|pune|45000|
+|103|  sony|60000|  f| 11|pune|55000|
+|104|  sita|70000|  f| 12| hyd|65000|
+|105|  john| 8000|  m| 13| hyd| 3000|
++---+------+-----+---+---+----+-----+
+
+>>> 
+.....................................................................................
+toJson() : 
+>>> df.toJSON().collect()
+['{"eid":101,"ename":"miller","sal":40000,"sex":"m","dno":11,"city":"hyd"}', '{"eid":102,"ename":"blake","sal":50000,"sex":"m","dno":12,"city":"pune"}', '{"eid":103,"ename":"sony","sal":60000,"sex":"f","dno":11,"city":"pune"}', '{"eid":104,"ename":"sita","sal":70000,"sex":"f","dno":12,"city":"hyd"}', '{"eid":105,"ename":"john","sal":8000,"sex":"m","dno":13,"city":"hyd"}']
+>>> 
+.....................................................................................
+25). toLocalIterator() : Returns local python iterator object. SUch as list, tuple,set, dictionary.
+
+>>> df.toLocalIterator()
+<generator object _local_iterator_from_socket.<locals>.PyLocalIterable.__iter__ at 0x7fa42ca999a0>
+>>> L1 = list(df.toLocalIterator())
+>>> print(L1)
+[Row(eid=101, ename='miller', sal=40000, sex='m', dno=11, city='hyd'), Row(eid=102, ename='blake', sal=50000, sex='m', dno=12, city='pune'), Row(eid=103, ename='sony', sal=60000, sex='f', dno=11, city='pune'), Row(eid=104, ename='sita', sal=70000, sex='f', dno=12, city='hyd'), Row(eid=105, ename='john', sal=8000, sex='m', dno=13, city='hyd')]
+>>> 
+
+......................................................................................
+>>> df.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+........................................................
+>>> df.show(truncate=False)      ----> shows the full content of the dataframe.
++---+------+-----+---+---+----+
+|eid|ename |sal  |sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|m  |11 |hyd |
+|102|blake |50000|m  |12 |pune|
+|103|sony  |60000|f  |11 |pune|
+|104|sita  |70000|f  |12 |hyd |
+|105|john  |8000 |m  |13 |hyd |
++---+------+-----+---+---+----+
+.........................................................
+>>> df.show(3,truncate=False)               # only showing top 3 rows and full column content.
++---+------+-----+---+---+----+
+|eid|ename |sal  |sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|m  |11 |hyd |
+|102|blake |50000|m  |12 |pune|
+|103|sony  |60000|f  |11 |pune|
++---+------+-----+---+---+----+
+
+..........................................................
+>>> df.show(2,truncate=3)         ------> it means display top 2 row and each column display 3 character.
++---+-----+---+---+---+----+
+|eid|ename|sal|sex|dno|city|
++---+-----+---+---+---+----+
+|101|  mil|400|  m| 11| hyd|
+|102|  bla|500|  m| 12| pun|
++---+-----+---+---+---+----+
+only showing top 2 rows
+
+>>> 
+......................................................................................
+26). groupBy():
+# Task: select sex,count(*) from emp group by sex;
+
+>>> res1 = df.groupBy("sex").count()
+>>> res1.show()
++---+-----+
+|sex|count|
++---+-----+
+|  m|    3|
+|  f|    2|
++---+-----+
+
+>>> 
+.......................................................................................
+27). aggregated functions:-
+1. agg()
+2. sum()
+3. max()
+4. min()
+5. avg()
+6. count()
+......................................................................................
+case1. Single grouping and single aggregation.
+o/p ----> m --------> count
+	  f --------> count
+......................................................................................
+
+>>> df.groupBy("sex").count().show()
++---+-----+
+|sex|count|
++---+-----+
+|  m|    3|
+|  f|    2|
++---+-----+
+
+>>> 
+......................................................................................
+2) sum aggregation :-
+o/p ----> m---> totalsal
+	f ----> totalsal
+
+......................................................................................
+
+>>> df.groupBy("sex").sum("sal").show()
++---+--------+
+|sex|sum(sal)|
++---+--------+
+|  m|   98000|
+|  f|  130000|
++---+--------+
+
+>>> 
+........................................................................................
+>>> df.groupBy("sex").sum("sal").show()
++---+--------+
+|sex|sum(sal)|
++---+--------+
+|  m|   98000|
+|  f|  130000|
++---+--------+
+
+>>> 
+...................................................................................
+>>> df.groupBy("dno").max("sal").show()
++---+--------+
+|dno|max(sal)|
++---+--------+
+| 12|   70000|
+| 11|   60000|
+| 13|    8000|
++---+--------+
+
+>>> 
+......................................................................................
+27) min
+
+>>> df.groupBy("dno").min("sal").show()
++---+--------+
+|dno|min(sal)|
++---+--------+
+| 12|   50000|
+| 11|   40000|
+| 13|    8000|
++---+--------+
+
+>>> 
+.......................................................................................
+28). Multigrouping
+
+>>> df.groupBy("dno","sex").min("sal").show()
++---+---+--------+
+|dno|sex|min(sal)|
++---+---+--------+
+| 12|  m|   50000|
+| 11|  f|   60000|
+| 11|  m|   40000|
+| 12|  f|   70000|
+| 13|  m|    8000|
++---+---+--------+
+
+>>> 
+
+...........................................................................................
+union() : merging the rows of 2 dataframes. The merging dataframe shuld have the same schema. Here schema means columns. 
+Number of columns should be the same. Column name should be the same.
+
+Syntax: df1.union(df2)
+
+>>> df.union(df).show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+............................................................................................
+
+30). intersect() : The column rows will be returned. The dataframes should have the same schema.
+
+>>> df.intersect(df).show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|103|  sony|60000|  f| 11|pune|
+|105|  john| 8000|  m| 13| hyd|
+|102| blake|50000|  m| 12|pune|
+|104|  sita|70000|  f| 12| hyd|
+|101|miller|40000|  m| 11| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+.................................................................................................
+31. Converting a df to a RDD
+
+>>> rdd1 = df.rdd
+>>> rdd1.collect()
+[Row(eid=101, ename='miller', sal=40000, sex='m', dno=11, city='hyd'), Row(eid=102, ename='blake', sal=50000, sex='m', dno=12, city='pune'), Row(eid=103, ename='sony', sal=60000, sex='f', dno=11, city='pune'), Row(eid=104, ename='sita', sal=70000, sex='f', dno=12, city='hyd'), Row(eid=105, ename='john', sal=8000, sex='m', dno=13, city='hyd')]
+>>> 
+
+..................................................................
+
+
+32. Joins:-
+
+Joins: Used to collect data from two ot more datasets.
+JOins are used to merging columns horizontally.
+There are two types of JOINS.
+1). Inner Join
+2). Outer Join
+
+Outer join again three types
+	Outer join -------> 3 types --------->  1. Left Outer Join
+						2. Right Outer Join
+						3. Full Outer Join
+						
+    a = 1 
+	2
+	3
+	4
+	5
+	6
+
+    b = 1
+	2
+	3
+	7
+	8
+	9
+
+1) Inner Join : Only Matching fields
+
+O/p---> (1,1)
+	(2,2)
+	(3,3)
+
+2) Left Outer JOin : Matching + UNmatched fields of left side i.e total present of left side.
+O/P :-
+(1,1)
+(2,2)
+(3,3)
+(4, )
+(5, )
+(6, )
+
+3) Right Outer Join : Matching + Unmatched fields of Right side i.e Total presence of right side
+O/P :-
+(1,1)
+(1,2)
+(1,3)
+(4, )
+(5, )
+(6, )
+( ,7)
+( ,8)
+( ,9)
+
+.................................................................................
+
+>>> r1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emps1")
+>>> r1.collect()
+['101,aaa,1000,m,11', '102,bbb,2000,f,12', '103,ccc,3000,m,12', '104,ddd,4000,f,13', '105,eee,5000,m,11', '106,fff,6000,f,14', '107,ggg,7000,m,15', '108,hhh,8000,f,16']
+>>> 
+>>> r2=r1.map(lambda x:x.split(","))
+>>> r2.collect()
+[['101', 'aaa', '1000', 'm', '11'], ['102', 'bbb', '2000', 'f', '12'], ['103', 'ccc', '3000', 'm', '12'], ['104', 'ddd', '4000', 'f', '13'], ['105', 'eee', '5000', 'm', '11'], ['106', 'fff', '6000', 'f', '14'], ['107', 'ggg', '7000', 'm', '15'], ['108', 'hhh', '8000', 'f', '16']]
+>>> 
+
+
+>>> from pyspark.sql import Row
+>>> r3 = r2.map(lambda x:Row(eid=int(x[0]),ename=x[1],sal=int(x[2]),sex=x[3],dno=int(x[4])))
+>>> r3.collect()
+[Row(eid=101, ename='aaa', sal=1000, sex='m', dno=11), Row(eid=102, ename='bbb', sal=2000, sex='f', dno=12), Row(eid=103, ename='ccc', sal=3000, sex='m', dno=12), Row(eid=104, ename='ddd', sal=4000, sex='f', dno=13), Row(eid=105, ename='eee', sal=5000, sex='m', dno=11), Row(eid=106, ename='fff', sal=6000, sex='f', dno=14), Row(eid=107, ename='ggg', sal=7000, sex='m', dno=15), Row(eid=108, ename='hhh', sal=8000, sex='f', dno=16)]
+>>> 
+
+
+# Now We need to convert into DataFrame.
+
+>>> df1 = spark.createDataFrame(r3)
+>>> df1.show()
++---+-----+----+---+---+
+|eid|ename| sal|sex|dno|
++---+-----+----+---+---+
+|101|  aaa|1000|  m| 11|
+|102|  bbb|2000|  f| 12|
+|103|  ccc|3000|  m| 12|
+|104|  ddd|4000|  f| 13|
+|105|  eee|5000|  m| 11|
+|106|  fff|6000|  f| 14|
+|107|  ggg|7000|  m| 15|
+|108|  hhh|8000|  f| 16|
++---+-----+----+---+---+
+
+..........................................................
+>>> rr1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/dept1")
+>>> rr1.collect()
+['11,mrkt,hyd', '12,hr,delhi', '13,fin,pune', '17,HR,hyd', '18,fin,Pune', '19,mrkt,delhi']
+
+>>> rr2 = rr1.map(lambda x:x.split(","))
+>>> rr2.collect()
+[['11', 'mrkt', 'hyd'], ['12', 'hr', 'delhi'], ['13', 'fin', 'pune'], ['17', 'HR', 'hyd'], ['18', 'fin', 'Pune'], ['19', 'mrkt', 'delhi']]
+
+>>> rr3 = rr2.map(lambda x:Row(dno = int(x[0]),dname = x[1],city = x[2]))
+>>> rr3.collect()
+[Row(dno=11, dname='mrkt', city='hyd'), Row(dno=12, dname='hr', city='delhi'), Row(dno=13, dname='fin', city='pune'), Row(dno=17, dname='HR', city='hyd'), Row(dno=18, dname='fin', city='Pune'), Row(dno=19, dname='mrkt', city='delhi')]
+
+>>> df2 = spark.createDataFrame(rr3)
+>>> df2.show()
++---+-----+-----+
+|dno|dname| city|
++---+-----+-----+
+| 11| mrkt|  hyd|
+| 12|   hr|delhi|
+| 13|  fin| pune|
+| 17|   HR|  hyd|
+| 18|  fin| Pune|
+| 19| mrkt|delhi|
++---+-----+-----+
+
+.................................................................
+
+Syntax Of Join:-
+df1.join(d2,joining condition,"Type of Join")
+
+Types:
+1). inner
+2). outer
+3). left_outer
+4). right_outer
+5). full_outer
+..................................................................
+# Inner Join
+>>> ij = df1.join(df2,df1.dno==df2.dno,"inner").select(df1.ename,df1.eid,df1.sal,df1.sex,df1.dno,df2.dname,df2.city)
+>>> ij.show()
++-----+---+----+---+---+-----+-----+
+|ename|eid| sal|sex|dno|dname| city|
++-----+---+----+---+---+-----+-----+
+|  aaa|101|1000|  m| 11| mrkt|  hyd|
+|  eee|105|5000|  m| 11| mrkt|  hyd|
+|  bbb|102|2000|  f| 12|   hr|delhi|
+|  ccc|103|3000|  m| 12|   hr|delhi|
+|  ddd|104|4000|  f| 13|  fin| pune|
++-----+---+----+---+---+-----+-----+
+
+...............................................................................
+# Left Outer Join
+>>> loj = df1.join(df2,df1.dno==df2.dno,"left_outer").select(df1.ename,df1.eid,df1.sal,df1.sex,df1.dno,df2.dname,df2.city)
+>>> loj.show()
++-----+---+----+---+---+-----+-----+
+|ename|eid| sal|sex|dno|dname| city|
++-----+---+----+---+---+-----+-----+
+|  bbb|102|2000|  f| 12|   hr|delhi|
+|  ccc|103|3000|  m| 12|   hr|delhi|
+|  aaa|101|1000|  m| 11| mrkt|  hyd|
+|  eee|105|5000|  m| 11| mrkt|  hyd|
+|  ddd|104|4000|  f| 13|  fin| pune|
+|  fff|106|6000|  f| 14| NULL| NULL|
+|  ggg|107|7000|  m| 15| NULL| NULL|
+|  hhh|108|8000|  f| 16| NULL| NULL|
++-----+---+----+---+---+-----+-----+
+
+>>> 
+................................................................................
+# Right Outer Join
+
+roj = df1.join(df2,df1.dno==df2.dno,"right_outer").select(df1.ename,df1.eid,df1.sal,df1.sex,df1.dno,df2.dname,df2.city)
+>>> roj.show()
++-----+----+----+----+----+-----+-----+
+|ename| eid| sal| sex| dno|dname| city|
++-----+----+----+----+----+-----+-----+
+| NULL|NULL|NULL|NULL|NULL|   HR|  hyd|
+|  ccc| 103|3000|   m|  12|   hr|delhi|
+|  bbb| 102|2000|   f|  12|   hr|delhi|
+|  eee| 105|5000|   m|  11| mrkt|  hyd|
+|  aaa| 101|1000|   m|  11| mrkt|  hyd|
+|  ddd| 104|4000|   f|  13|  fin| pune|
+| NULL|NULL|NULL|NULL|NULL| mrkt|delhi|
+| NULL|NULL|NULL|NULL|NULL|  fin| Pune|
++-----+----+----+----+----+-----+-----+
+
+>>> 
+..................................................................................
+# Full Outer Join()
+>>> foj = df1.join(df2,df1.dno==df2.dno,"full_outer").select(df1.ename,df1.eid,df1.sal,df1.sex,df1.dno,df2.dname,df2.city)
+>>> foj.show()
++-----+----+----+----+----+-----+-----+
+|ename| eid| sal| sex| dno|dname| city|
++-----+----+----+----+----+-----+-----+
+|  aaa| 101|1000|   m|  11| mrkt|  hyd|
+|  eee| 105|5000|   m|  11| mrkt|  hyd|
+|  bbb| 102|2000|   f|  12|   hr|delhi|
+|  ccc| 103|3000|   m|  12|   hr|delhi|
+|  ddd| 104|4000|   f|  13|  fin| pune|
+|  fff| 106|6000|   f|  14| NULL| NULL|
+|  ggg| 107|7000|   m|  15| NULL| NULL|
+|  hhh| 108|8000|   f|  16| NULL| NULL|
+| NULL|NULL|NULL|NULL|NULL|   HR|  hyd|
+| NULL|NULL|NULL|NULL|NULL|  fin| Pune|
+| NULL|NULL|NULL|NULL|NULL| mrkt|delhi|
++-----+----+----+----+----+-----+-----+
+
+.......................................................................................
+32) Eliminating the records with null values. (If any rows have null value. That row will be eliminated.)
+
+>>> foj.dropna().show()
++-----+---+----+---+---+-----+-----+
+|ename|eid| sal|sex|dno|dname| city|
++-----+---+----+---+---+-----+-----+
+|  aaa|101|1000|  m| 11| mrkt|  hyd|
+|  eee|105|5000|  m| 11| mrkt|  hyd|
+|  bbb|102|2000|  f| 12|   hr|delhi|
+|  ccc|103|3000|  m| 12|   hr|delhi|
+|  ddd|104|4000|  f| 13|  fin| pune|
++-----+---+----+---+---+-----+-----+
+
+>>> 
+
+.........................................................................................
+33). if column datatype is number. then that datatype is filled with 0 if that column value is null.
+
+>>> foj.na.fill(0).show()
++-----+---+----+----+---+-----+-----+
+|ename|eid| sal| sex|dno|dname| city|
++-----+---+----+----+---+-----+-----+
+|  aaa|101|1000|   m| 11| mrkt|  hyd|
+|  eee|105|5000|   m| 11| mrkt|  hyd|
+|  bbb|102|2000|   f| 12|   hr|delhi|
+|  ccc|103|3000|   m| 12|   hr|delhi|
+|  ddd|104|4000|   f| 13|  fin| pune|
+|  fff|106|6000|   f| 14| NULL| NULL|
+|  ggg|107|7000|   m| 15| NULL| NULL|
+|  hhh|108|8000|   f| 16| NULL| NULL|
+| NULL|  0|   0|NULL|  0|   HR|  hyd|
+| NULL|  0|   0|NULL|  0|  fin| Pune|
+| NULL|  0|   0|NULL|  0| mrkt|delhi|
++-----+---+----+----+---+-----+-----+
+
+>>> 
+..............................................................................
+>>> foj.na.fill({'ename':'unkonow','eid':000,'sal':000,'sex':'unknown','dno':00,'dname':'unknown','city':'unknown'}).show()
++-------+---+----+-------+---+-------+-------+
+|  ename|eid| sal|    sex|dno|  dname|   city|
++-------+---+----+-------+---+-------+-------+
+|    aaa|101|1000|      m| 11|   mrkt|    hyd|
+|    eee|105|5000|      m| 11|   mrkt|    hyd|
+|    bbb|102|2000|      f| 12|     hr|  delhi|
+|    ccc|103|3000|      m| 12|     hr|  delhi|
+|    ddd|104|4000|      f| 13|    fin|   pune|
+|    fff|106|6000|      f| 14|unknown|unknown|
+|    ggg|107|7000|      m| 15|unknown|unknown|
+|    hhh|108|8000|      f| 16|unknown|unknown|
+|unkonow|  0|   0|unknown|  0|     HR|    hyd|
+|unkonow|  0|   0|unknown|  0|    fin|   Pune|
+|unkonow|  0|   0|unknown|  0|   mrkt|  delhi|
++-------+---+----+-------+---+-------+-------+
+
+>>> 
+.................................................................................
+
+#For working with sql queires, Register Dataframe as table and applyinh all valid sql queries on it.
+
+To register DF as a table ----> we have 2 ways.
+1). df.registerTempTable("Tablename")
+OR
+2). sqlContext.registerDataFrameAsTable(df,"table name")
+sqlCOntext.sql(".....sql query.....").show()
+
+
+
+
+>>> r1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emp1.txt")
+>>> r1.collect()
+['101,miller,40000,m,11,hyd', '102,blake,50000,m,12,pune', '103,sony,60000,f,11,pune', '104,sita,70000,f,12,hyd', '105,john,8000,m,13,hyd']
+>>> r2 = r1.map(lambda x:x.split(","))
+>>> r2.collect()
+[['101', 'miller', '40000', 'm', '11', 'hyd'], ['102', 'blake', '50000', 'm', '12', 'pune'], ['103', 'sony', '60000', 'f', '11', 'pune'], ['104', 'sita', '70000', 'f', '12', 'hyd'], ['105', 'john', '8000', 'm', '13', 'hyd']]
+>>> from pyspark.sql import Row
+
+>>> r3 = r2.map(lambda x:Row(eid=int(x[0]),ename = x[1],sal = int(x[2]),sex=x[3],dno=int(x[4]),city=x[5]))
+>>> r3.collect()
+[Row(eid=101, ename='miller', sal=40000, sex='m', dno=11, city='hyd'), Row(eid=102, ename='blake', sal=50000, sex='m', dno=12, city='pune'), Row(eid=103, ename='sony', sal=60000, sex='f', dno=11, city='pune'), Row(eid=104, ename='sita', sal=70000, sex='f', dno=12, city='hyd'), Row(eid=105, ename='john', sal=8000, sex='m', dno=13, city='hyd')]
+>>> 
+
+>>> emps_df = spark.createDataFrame(r3)
+>>> emps_df.show()                                                              
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+...................................................................................................................................
+# 1st Way
+>>> emps_df.registerTempTable("emps1")
+/home/amit/softwares/spark-3.5.0/python/pyspark/sql/dataframe.py:329: FutureWarning: Deprecated in 2.0, use createOrReplaceTempView instead.
+  warnings.warn("Deprecated in 2.0, use createOrReplaceTempView instead.", FutureWarning)
+>>> e1 = sqlContext.sql("select * from emps1")
+>>> e1.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>> 
+.............................................................................................
+
+2nd Way:
+>>> sqlContext.registerDataFrameAsTable(emps_df,"emps2")
+>>> e2 = sqlContext.sql("select * from emps2")
+>>> e2.show()
++---+------+-----+---+---+----+
+|eid| ename|  sal|sex|dno|city|
++---+------+-----+---+---+----+
+|101|miller|40000|  m| 11| hyd|
+|102| blake|50000|  m| 12|pune|
+|103|  sony|60000|  f| 11|pune|
+|104|  sita|70000|  f| 12| hyd|
+|105|  john| 8000|  m| 13| hyd|
++---+------+-----+---+---+----+
+
+>>>
+NOte:- Hdfs file converted to RDD--------> DF------> TempTable----------->SqlQuery 
+..............................................................................................
+#Adding extra column(tax)
+
+>>> tax_add_df = sqlContext.sql("select *,sal*0.10 as tax from emps2").show()
++---+------+-----+---+---+----+-------+
+|eid| ename|  sal|sex|dno|city|    tax|
++---+------+-----+---+---+----+-------+
+|101|miller|40000|  m| 11| hyd|4000.00|
+|102| blake|50000|  m| 12|pune|5000.00|
+|103|  sony|60000|  f| 11|pune|6000.00|
+|104|  sita|70000|  f| 12| hyd|7000.00|
+|105|  john| 8000|  m| 13| hyd| 800.00|
++---+------+-----+---+---+----+-------+
+
+>>> 
+...............................................................................................
+#Case1: SIngle grouping and single aggregation:
+
+>>> singlegrp_aggr = sqlContext.sql("select sex,sum(sal) from emps2 group by sex").show()
++---+--------+
+|sex|sum(sal)|
++---+--------+
+|  m|   98000|
+|  f|  130000|
++---+--------+
+
+>>> 
+................................................................................................
+#Case2: Multi grouping and single aggregation
+
+dno eise, sex wise ----------------> sum(sal)
+
+>>> multigrp = sqlContext.sql("select dno,sex,sum(sal) from emps2 group by dno,sex").show()
++---+---+--------+
+|dno|sex|sum(sal)|
++---+---+--------+
+| 12|  m|   50000|
+| 11|  f|   60000|
+| 11|  m|   40000|
+| 12|  f|   70000|
+| 13|  m|    8000|
++---+---+--------+
+
+>>> 
+..................................................................................................
+#Case 3:- Single grouping and multiple aggregation
+
+>>> multiaggr = sqlContext.sql("select sex,sum(sal),avg(sal),max(sal),min(sal),count(*) from emps2 group by sex").show()
++---+--------+------------------+--------+--------+--------+
+|sex|sum(sal)|          avg(sal)|max(sal)|min(sal)|count(1)|
++---+--------+------------------+--------+--------+--------+
+|  m|   98000|32666.666666666668|   50000|    8000|       3|
+|  f|  130000|           65000.0|   70000|   60000|       2|
++---+--------+------------------+--------+--------+--------+
+
+>>> 
+...................................................................................................
+case4 : MUltigrouping and multiple aggregation
+
+>>> multigrp_aggr = sqlContext.sql("select dno,sex,sum(sal),avg(sal),max(sal),min(sal),count(*) from emps2 group by dno,sex").show()
++---+---+--------+--------+--------+--------+--------+
+|dno|sex|sum(sal)|avg(sal)|max(sal)|min(sal)|count(1)|
++---+---+--------+--------+--------+--------+--------+
+| 12|  m|   50000| 50000.0|   50000|   50000|       1|
+| 11|  f|   60000| 60000.0|   60000|   60000|       1|
+| 11|  m|   40000| 40000.0|   40000|   40000|       1|
+| 12|  f|   70000| 70000.0|   70000|   70000|       1|
+| 13|  m|    8000|  8000.0|    8000|    8000|       1|
++---+---+--------+--------+--------+--------+--------+
+
+>>> 
+....................................................................................................
+Task : Citywise i want the total salary budget.
+
+>> r1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/emps1")
+>>> r1.collect()
+['101,aaa,1000,m,11', '102,bbb,2000,f,12', '103,ccc,3000,m,12', '104,ddd,4000,f,13', '105,eee,5000,m,11', '106,fff,6000,f,14', '107,ggg,7000,m,15', '108,hhh,8000,f,16']
+
+>>> r2 = r1.map(lambda x:x.split(","))
+>>> r2.collect()
+[['101', 'aaa', '1000', 'm', '11'], ['102', 'bbb', '2000', 'f', '12'], ['103', 'ccc', '3000', 'm', '12'], ['104', 'ddd', '4000', 'f', '13'], ['105', 'eee', '5000', 'm', '11'], ['106', 'fff', '6000', 'f', '14'], ['107', 'ggg', '7000', 'm', '15'], ['108', 'hhh', '8000', 'f', '16']]
+>>> from pyspark.sql import Row
+>>> r3 = r2.map(lambda x:Row(eid=int(x[0]),ename=x[1],sal=int(x[2]),sex=x[3],dno=int(x[4])))
+>>> r3.collect()
+
+[Row(eid=101, ename='aaa', sal=1000, sex='m', dno=11), Row(eid=102, ename='bbb', sal=2000, sex='f', dno=12), Row(eid=103, ename='ccc', sal=3000, sex='m', dno=12), Row(eid=104, ename='ddd', sal=4000, sex='f', dno=13), Row(eid=105, ename='eee', sal=5000, sex='m', dno=11), Row(eid=106, ename='fff', sal=6000, sex='f', dno=14), Row(eid=107, ename='ggg', sal=7000, sex='m', dno=15), Row(eid=108, ename='hhh', sal=8000, sex='f', dno=16)]
+
+>>> emps1=spark.createDataFrame(r3)
+>>> emps1=spark.createDataFrame(r3)
+>>> emps1.show()
++---+-----+----+---+---+
+|eid|ename| sal|sex|dno|
++---+-----+----+---+---+
+|101|  aaa|1000|  m| 11|
+|102|  bbb|2000|  f| 12|
+|103|  ccc|3000|  m| 12|
+|104|  ddd|4000|  f| 13|
+|105|  eee|5000|  m| 11|
+|106|  fff|6000|  f| 14|
+|107|  ggg|7000|  m| 15|
+|108|  hhh|8000|  f| 16|
++---+-----+----+---+---+
+
+............................................................
+
+# Now Loading Department table.
+
+>>> rr1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/dept1")
+>>> rr1.collect()
+['11,mrkt,hyd', '12,hr,delhi', '13,fin,pune', '17,HR,hyd', '18,fin,Pune', '19,mrkt,delhi']
+>>> rr2 = rr1.map(lambda x:x.split(","))
+>>> rr2.collect()
+[['11', 'mrkt', 'hyd'], ['12', 'hr', 'delhi'], ['13', 'fin', 'pune'], ['17', 'HR', 'hyd'], ['18', 'fin', 'Pune'], ['19', 'mrkt', 'delhi']]
+>>> from pyspark.sql import Row
+>>> rr3 = rr2.map(lambda x:Row(dno=int(x[0]),dname=x[1],city=x[2]))
+>>> dept1 =spark.createDataFrame(rr3)
+>>> dept1.show()
++---+-----+-----+
+|dno|dname| city|
++---+-----+-----+
+| 11| mrkt|  hyd|
+| 12|   hr|delhi|
+| 13|  fin| pune|
+| 17|   HR|  hyd|
+| 18|  fin| Pune|
+| 19| mrkt|delhi|
++---+-----+-----+
+
+>>> 
+............................................................
+#Now registering DataFrames as temptables.
+
+>>> sqlContext.registerDataFrameAsTable(emps1,"emps2")
+>>> sqlContext.registerDataFrameAsTable(dept1,"dept2")
+>>> sqlContext.sql("select * from emps2").show()
++---+-----+----+---+---+
+|eid|ename| sal|sex|dno|
++---+-----+----+---+---+
+|101|  aaa|1000|  m| 11|
+|102|  bbb|2000|  f| 12|
+|103|  ccc|3000|  m| 12|
+|104|  ddd|4000|  f| 13|
+|105|  eee|5000|  m| 11|
+|106|  fff|6000|  f| 14|
+|107|  ggg|7000|  m| 15|
+|108|  hhh|8000|  f| 16|
++---+-----+----+---+---+
+
+>>> sqlContext.sql("select * from dept2").show()
++---+-----+-----+
+|dno|dname| city|
++---+-----+-----+
+| 11| mrkt|  hyd|
+| 12|   hr|delhi|
+| 13|  fin| pune|
+| 17|   HR|  hyd|
+| 18|  fin| Pune|
+| 19| mrkt|delhi|
++---+-----+-----+
+
+>>> 
+.........................................................
+>>> res = sqlContext.sql("select city,sum(sal) as totalsal from emps2 e join dept2 d on e.dno=d.dno group by city").show()
++-----+--------+                                                                
+| city|totalsal|
++-----+--------+
+|delhi|    5000|
+|  hyd|    6000|
+| pune|    4000|
++-----+--------+
+
+>>> 
+.........................................................................
+
+amit@ubuntu:~/PRAC$ cat sales5.txt
+1/2/2018,70000
+2/2/2018,20000
+3/2/2017,3000
+4/2/2017,15000
+1/3/2017,9000
+2/3/2017,11000
+3/3/2017,19000
+4/3/2017,25000
+1/5/2019,20000
+2/5/2019,40000
+1/8/2020,50000
+2/8/2020,60000
+1/9/2020,30000
+2/9/2020,80000
+1/10/2020,20000
+2/10/2020,40000
+3/10/2020,50000
+
+amit@ubuntu:~/PRAC$  hdfs dfs -put sales5.txt /pyspark330pm
+
+Task1:- select year,sum(price),max(price),min(price),count(*) from sales5 group by year;
+
+Task2 :- select year,month,sum(price),max(price),min(price),count(*) from sales5 group by year,month
+
+Step1: Loading
+
+>>> r1 = sc.textFile("hdfs://localhost:9000/pyspark330pm/sales5.txt")
+>>> r1.collect()
+['1/2/2018,70000', '2/2/2018,20000', '3/2/2017,3000', '4/2/2017,15000', '1/3/2017,9000', '2/3/2017,11000', '3/3/2017,19000', '4/3/2017,25000', '1/5/2019,20000', '2/5/2019,40000', '1/8/2020,50000', '2/8/2020,60000', '1/9/2020,30000', '2/9/2020,80000', '1/10/2020,20000', '2/10/2020,40000', '3/10/2020,50000']
+>>> #Step2: SPlitting based on delimiter(comma)
+>>> 
+>>> r2 = r1.map(lambda x:x.split(","))
+>>> r2.collect()
+[['1/2/2018', '70000'], ['2/2/2018', '20000'], ['3/2/2017', '3000'], ['4/2/2017', '15000'], ['1/3/2017', '9000'], ['2/3/2017', '11000'], ['3/3/2017', '19000'], ['4/3/2017', '25000'], ['1/5/2019', '20000'], ['2/5/2019', '40000'], ['1/8/2020', '50000'], ['2/8/2020', '60000'], ['1/9/2020', '30000'], ['2/9/2020', '80000'], ['1/10/2020', '20000'], ['2/10/2020', '40000'], ['3/10/2020', '50000']]
+>>> 
+>>> #step3 : spltting based on "/"
+>>> r3 = r2.map(lambda x:(x[0].split("/"),x[1]))
+>>> r3.collect()
+[(['1', '2', '2018'], '70000'), (['2', '2', '2018'], '20000'), (['3', '2', '2017'], '3000'), (['4', '2', '2017'], '15000'), (['1', '3', '2017'], '9000'), (['2', '3', '2017'], '11000'), (['3', '3', '2017'], '19000'), (['4', '3', '2017'], '25000'), (['1', '5', '2019'], '20000'), (['2', '5', '2019'], '40000'), (['1', '8', '2020'], '50000'), (['2', '8', '2020'], '60000'), (['1', '9', '2020'], '30000'), (['2', '9', '2020'], '80000'), (['1', '10', '2020'], '20000'), (['2', '10', '2020'], '40000'), (['3', '10', '2020'], '50000')]
+>>> 
+>>> 
+>>> #Step4 : Extracting the required fields and creating row objects.
+>>> from pyspark.sql import Row
+>>> r4 = r3.map(lambda x:Row(day=int(x[0][0]),month=int(x[0][1]),year=int(x[0][2]),price=int(x[1])))
+>>> r4.collect()
+[Row(day=1, month=2, year=2018, price=70000), Row(day=2, month=2, year=2018, price=20000), Row(day=3, month=2, year=2017, price=3000), Row(day=4, month=2, year=2017, price=15000), Row(day=1, month=3, year=2017, price=9000), Row(day=2, month=3, year=2017, price=11000), Row(day=3, month=3, year=2017, price=19000), Row(day=4, month=3, year=2017, price=25000), Row(day=1, month=5, year=2019, price=20000), Row(day=2, month=5, year=2019, price=40000), Row(day=1, month=8, year=2020, price=50000), Row(day=2, month=8, year=2020, price=60000), Row(day=1, month=9, year=2020, price=30000), Row(day=2, month=9, year=2020, price=80000), Row(day=1, month=10, year=2020, price=20000), Row(day=2, month=10, year=2020, price=40000), Row(day=3, month=10, year=2020, price=50000)]
+>>> sales=spark.createDataFrame(r4)
+>>> sales.show()
++---+-----+----+-----+
+|day|month|year|price|
++---+-----+----+-----+
+|  1|    2|2018|70000|
+|  2|    2|2018|20000|
+|  3|    2|2017| 3000|
+|  4|    2|2017|15000|
+|  1|    3|2017| 9000|
+|  2|    3|2017|11000|
+|  3|    3|2017|19000|
+|  4|    3|2017|25000|
+|  1|    5|2019|20000|
+|  2|    5|2019|40000|
+|  1|    8|2020|50000|
+|  2|    8|2020|60000|
+|  1|    9|2020|30000|
+|  2|    9|2020|80000|
+|  1|   10|2020|20000|
+|  2|   10|2020|40000|
+|  3|   10|2020|50000|
++---+-----+----+-----+
+..........................................................................................................
+
+>>> #Step5:register DF as tempTable
+>>> sqlContext.registerDataFrameAsTable(sales,"sales1")
+>>> sqlContext.sql("select * from sales1").show()
++---+-----+----+-----+
+|day|month|year|price|
++---+-----+----+-----+
+|  1|    2|2018|70000|
+|  2|    2|2018|20000|
+|  3|    2|2017| 3000|
+|  4|    2|2017|15000|
+|  1|    3|2017| 9000|
+|  2|    3|2017|11000|
+|  3|    3|2017|19000|
+|  4|    3|2017|25000|
+|  1|    5|2019|20000|
+|  2|    5|2019|40000|
+|  1|    8|2020|50000|
+|  2|    8|2020|60000|
+|  1|    9|2020|30000|
+|  2|    9|2020|80000|
+|  1|   10|2020|20000|
+|  2|   10|2020|40000|
+|  3|   10|2020|50000|
++---+-----+----+-----+
+
+>>> 
+
+......................................................................
+>>> res1 = sqlContext.sql("select year,sum(price) as totalrevenue from sales1 group by year").show()
++----+------------+
+|year|totalrevenue|
++----+------------+
+|2018|       90000|
+|2017|       82000|
+|2019|       60000|
+|2020|      330000|
++----+------------+
+
+>>> 
+.....................................................................
+# FIltering operations:
+>>> res2 = sqlContext.sql("select * from sales1 where year=2020").show()
++---+-----+----+-----+
+|day|month|year|price|
++---+-----+----+-----+
+|  1|    8|2020|50000|
+|  2|    8|2020|60000|
+|  1|    9|2020|30000|
+|  2|    9|2020|80000|
+|  1|   10|2020|20000|
+|  2|   10|2020|40000|
+|  3|   10|2020|50000|
++---+-----+----+-----+
+
+......................................................................
+
+# Working with CSV(Comma Separated Values)
+
+amit@ubuntu:~/PRAC$ cat emp1.csv
+eid,ename,salary,sex,dno,city
+101,miller,40000,m,11,null
+102,blake,50000,m,12,pune
+103,sony,null,f,11,null
+104,sita,70000,f,12,hyd
+105,john,null,m,13,hyd
+
+hdfs dfs -put emp1.csv /pyspark330pm
+
+#First we need to create dataframe out of it.
+df = spark.read.format("csv").load("hdfs://localhost:9000/pyspark330pm/emp1.csv")
+
+>>> df = spark.read.format("csv").load("hdfs://localhost:9000/pyspark330pm/emp1.csv")
+>>> df.show()
++---+------+------+---+---+----+
+|_c0|   _c1|   _c2|_c3|_c4| _c5|
++---+------+------+---+---+----+
+|eid| ename|salary|sex|dno|city|
+|101|miller| 40000|  m| 11|null|
+|102| blake| 50000|  m| 12|pune|
+|103|  sony|  null|  f| 11|null|
+|104|  sita| 70000|  f| 12| hyd|
+|105|  john|  null|  m| 13| hyd|
++---+------+------+---+---+----+
+
+You cant see column name. But i want to show column name tooo
+............................................................
+2nd Method:-
+>>> df = spark.read.csv("hdfs://localhost:9000/pyspark330pm/emp1.csv")
+>>> df.show()
++---+------+------+---+---+----+
+|_c0|   _c1|   _c2|_c3|_c4| _c5|
++---+------+------+---+---+----+
+|eid| ename|salary|sex|dno|city|
+|101|miller| 40000|  m| 11|null|
+|102| blake| 50000|  m| 12|pune|
+|103|  sony|  null|  f| 11|null|
+|104|  sita| 70000|  f| 12| hyd|
+|105|  john|  null|  m| 13| hyd|
++---+------+------+---+---+----+
+
+>>> 
+............................................................
+#To set the header names.
+
+>>> df2 = spark.read.option("header",True).csv("hdfs://localhost:9000/pyspark330pm/emp1.csv")
+>>> df2.show()
++---+------+------+---+---+----+
+|eid| ename|salary|sex|dno|city|
++---+------+------+---+---+----+
+|101|miller| 40000|  m| 11|null|
+|102| blake| 50000|  m| 12|pune|
+|103|  sony|  null|  f| 11|null|
+|104|  sita| 70000|  f| 12| hyd|
+|105|  john|  null|  m| 13| hyd|
++---+------+------+---+---+----+
+
+>>> 
+................................................................
+4). Reading multiple csv files at a time.
+
+df3 = spark.read.csv(["hdfs://localhost:9000/pyspark330pm/emp1.csv","hdfs://localhost:9000/pyspark330pm/emp1.csv","hdfs://localhost:9000/pyspark330pm/emp1.csv"])
+
+>>> df3.show()
++---+------+------+---+---+----+
+|_c0|   _c1|   _c2|_c3|_c4| _c5|
++---+------+------+---+---+----+
+|eid| ename|salary|sex|dno|city|
+|101|miller| 40000|  m| 11|null|
+|102| blake| 50000|  m| 12|pune|
+|103|  sony|  null|  f| 11|null|
+|104|  sita| 70000|  f| 12| hyd|
+|105|  john|  null|  m| 13| hyd|
+|eid| ename|salary|sex|dno|city|
+|101|miller| 40000|  m| 11|null|
+|102| blake| 50000|  m| 12|pune|
+|103|  sony|  null|  f| 11|null|
+|104|  sita| 70000|  f| 12| hyd|
+|105|  john|  null|  m| 13| hyd|
+|eid| ename|salary|sex|dno|city|
+|101|miller| 40000|  m| 11|null|
+|102| blake| 50000|  m| 12|pune|
+|103|  sony|  null|  f| 11|null|
+|104|  sita| 70000|  f| 12| hyd|
+|105|  john|  null|  m| 13| hyd|
++---+------+------+---+---+----+
+
+>>> 
+...................................................................................
+5). Reading all csv files in a directory(assume 10 csv files).
+
+syntax: df = spark.read.csv("folder path")
+....................................................................................
+# Specifying a delimeter.
+
+amit@ubuntu:~/PRAC$ cat emp1.csv
+eid,ename,salary,sex,dno,city
+101,miller,40000,m,11,null
+102,blake,50000,m,12,pune
+103,sony,null,f,11,null
+104,sita,70000,f,12,hyd
+105,john,null,m,13,hyd
+
+# By default it is comma delimited but we can set another delimeter like "\t" ,"||"
+
+Syntax :- df=spark.read.options(delimeter=",").csv("filepath")
+.....................................................................................
+# Reading a JSON and writing into JSON.
+
+>>> df = spark.read.json("hdfs://localhost:9000/pyspark330pm/json1.json")
+                                                                            
+>>> df.show()
++---+----+------+---+
+|age|city|  name|sex|
++---+----+------+---+
+| 30|NULL|  ajay|  m|
+| 25|NULL|miller|  m|
+| 30|NULL| latha|  f|
+| 22| hyd|  sony|  f|
+| 33|pune|  john|  m|
++---+----+------+---+
+
+>>> df.registerTempTable("jsontab")
+/home/amit/softwares/spark-3.5.0/python/pyspark/sql/dataframe.py:329: FutureWarning: Deprecated in 2.0, use createOrReplaceTempView instead.
+  warnings.warn("Deprecated in 2.0, use createOrReplaceTempView instead.", FutureWarning)
+>>> q1 = sqlContext.sql("select * from jsontab")
+>>> q1.show()
++---+----+------+---+
+|age|city|  name|sex|
++---+----+------+---+
+| 30|NULL|  ajay|  m|
+| 25|NULL|miller|  m|
+| 30|NULL| latha|  f|
+| 22| hyd|  sony|  f|
+| 33|pune|  john|  m|
++---+----+------+---+
+>>> # Extract only miller record
+>>> q2 = sqlContext.sql("select * from jsontab where name = 'miller' ").show()
++---+----+------+---+
+|age|city|  name|sex|
++---+----+------+---+
+| 25|NULL|miller|  m|
++---+----+------+---+
+
+# Find the average age values of females and males.
+
+>>> q2 = sqlContext.sql("select avg(age) from jsontab group by sex").show()
++------------------+
+|          avg(age)|
++------------------+
+|29.333333333333332|
+|              26.0|
++------------------+
+
+.........................................................................................................
+                ~:NESTED JSON:~
+             
+hadoop fs -put json2.json /pyspark330pm
+
+>>> df = spark.read.json("hdfs://localhost:9000/pyspark330pm/json2.json")
+>>> df.show()
++---+------+-----+------------+
+|age|  city| name|        wife|
++---+------+-----+------------+
+| 30|  pune| ajay| {24, Latha}|
+| 35|   hyd| ravi|{28, anitha}|
+| 30|mumbai|james|  {27, sony}|
++---+------+-----+------------+
+
+>>> df.registerTempTable("jsontab2")
+>>> q1 = sqlContext.sql("select * from jsontab2")
+>>> q1.show()
++---+------+-----+------------+
+|age|  city| name|        wife|
++---+------+-----+------------+
+| 30|  pune| ajay| {24, Latha}|
+| 35|   hyd| ravi|{28, anitha}|
+| 30|mumbai|james|  {27, sony}|
++---+------+-----+------------+
+
+>>> 
+.............................................................................................................
+q2 = sqlContext.sql("select name as hname,wife.name as wname,age as hage,wife.age as wage,city from jsontab2").show()
+
+>>> q2 = sqlContext.sql("select name as hname,wife.name as wname,age as hage,wife.age as wage,city from jsontab2").show()
++-----+------+----+----+------+
+|hname| wname|hage|wage|  city|
++-----+------+----+----+------+
+| ajay| Latha|  30|  24|  pune|
+| ravi|anitha|  35|  28|   hyd|
+|james|  sony|  30|  27|mumbai|
++-----+------+----+----+------+
+
+>>> 
+..............................................................................................
+# 2nd way of loading.
+>>> df = spark.read.format("org.apache.spark.sql.json").load("hdfs://localhost:9000/pyspark330pm/json2.json")
+>>> df.show()
++---+------+-----+------------+
+|age|  city| name|        wife|
++---+------+-----+------------+
+| 30|  pune| ajay| {24, Latha}|
+| 35|   hyd| ravi|{28, anitha}|
+| 30|mumbai|james|  {27, sony}|
++---+------+-----+------------+
+
+.......................................................
+#Reading multiple line json file
+
+
+amit@ubuntu:~/PRAC$ hdfs dfs -cat /pyspark330pm/json3.json
+2024-02-25 07:03:23,354 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+
+[
+  {
+    "player":"rohith",
+    "matches":210,
+    "totalruns":7570,
+    "hsscore":"220"
+  },
+  {
+    "player":"kohli",
+    "matches":320,
+    "totalruns":12890,
+    "hsscore":310
+  },
+  {
+    "player":"dhoni",
+    "matches":370,
+    "totalruns":9870,
+    "hsscore":170
+  }
+]
+
+
+amit@ubuntu:~/PRAC$ hdfs dfs -put json3.json /pyspark330pm
+2024-02-24 22:40:24,097 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+
+...................................................................
+>>> df = spark.read.option("multiline","true").json("/home/amit/PRAC/json3.json")
+>>> df.show()
++-------+-------+------+---------+
+|hsscore|matches|player|totalruns|
++-------+-------+------+---------+
+|    220|    210|rohith|     7570|
+|    310|    320| kohli|    12890|
+|    170|    370| dhoni|     9870|
++-------+-------+------+---------+
+
+............................................................................................
+# Reading multipe json files at a time :- 
+
+Syntax : df = spark.read.json(['jsonfile1path','jsonfile2path'])
+
+>>> df = spark.read.json(["hdfs://localhost:9000/pyspark330pm/json1.json","hdfs://localhost:9000/pyspark330pm/json2.json"])
+>>> df.show()
++---+------+------+----+------------+
+|age|  city|  name| sex|        wife|
++---+------+------+----+------------+
+| 30|  pune|  ajay|NULL| {24, Latha}|
+| 35|   hyd|  ravi|NULL|{28, anitha}|
+| 30|mumbai| james|NULL|  {27, sony}|
+| 30|  NULL|  ajay|   m|        NULL|
+| 25|  NULL|miller|   m|        NULL|
+| 30|  NULL| latha|   f|        NULL|
+| 22|   hyd|  sony|   f|        NULL|
+| 33|  pune|  john|   m|        NULL|
++---+------+------+----+------------+
+
+.............................................................................................
+# Reading files with user-specified custom schema:-
+
+pyspark sql provides StructType and StructField classes to specify the structure to the dataframe..
+
+>>> from pyspark.sql.types import *
+>>> schema = StructType([StructField("name",StringType(),True),
+...                     StructField("age",IntegerType(),True),
+...                     StructField("sex",IntegerType(),True),
+...                     StructField("city",StringType(),True)])
+
+>>> df = spark.read.schema(schema).json("hdfs://localhost:9000/pyspark330pm/json1.json")
+>>> df.show()
++------+---+----+----+
+|  name|age| sex|city|
++------+---+----+----+
+|  ajay| 30|NULL|NULL|
+|miller| 25|NULL|NULL|
+| latha| 30|NULL|NULL|
+|  sony| 22|NULL| hyd|
+|  john| 33|NULL|pune|
++------+---+----+----+
+
+>>> df.printSchema()
+root
+ |-- name: string (nullable = true)
+ |-- age: integer (nullable = true)
+ |-- sex: integer (nullable = true)
+ |-- city: string (nullable = true)
+
+>>> 
+.....................................................................................................
+# Writing a DataFrame to a json File
+
+>>> df.write.json("hdfs://localhost:9000/pyspark330pm/samp1")
+amit@ubuntu:~/PRAC$ hdfs dfs -ls /pyspark330pm/samp1
+
+hdfs dfs -cat "hdfs://localhost:9000/pyspark330pm/samp1/part-00000-1e951da7-dc3e-4e43-b48a-8cd2ccfe3845-c000.json"
+
+{"name":"ajay","age":30}
+{"name":"miller","age":25}
+{"name":"latha","age":30}
+{"name":"sony","age":22,"city":"hyd"}
+{"name":"john","age":33,"city":"pune"}
+
+......................................................................
+Pyspark Functions:-
+...................
+
+1). withColumn() : We can perform the following:-
+	a. For changing the column datatype
+	b. for modyfying and updating the column value.
+	c. Deriving a new column from the existing column.
+	d. Renaming the column
+	e. Dropping a dataframe column
+
+>>> data = [(101,'miller',5000,'2020-02-2','m','pune'),(102,'blake',6000,'2019-04-15','m','hyd'),(103,'priya',3000,'2021-05-22','f','pune'),(104,'sony',7000,'2018-05-22','f','hyd')]
+>>> columns = ["empid","empname","salary","JoinDate","sex","city"]
+>>> df = spark.createDataFrame(data,columns)
+>>> df.show()
++-----+-------+------+----------+---+----+                                      
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  102|  blake|  6000|2019-04-15|  m| hyd|
+|  103|  priya|  3000|2021-05-22|  f|pune|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> 
+.........................................................................................
+1). For changing the column datatype
+For changing the datatype we use cast() function along with withColumn()
+
+>>> df.printSchema()
+root
+ |-- empid: long (nullable = true)
+ |-- empname: string (nullable = true)
+ |-- salary: long (nullable = true)
+ |-- JoinDate: string (nullable = true)
+ |-- sex: string (nullable = true)
+ |-- city: string (nullable = true)
+
+.........................................................................................
+# CHnaging datatype from long to integer.
+>>> from pyspark.sql.functions import col
+>>> df1 = df.withColumn("salary",col("salary").cast("Integer"))
+>>> df1.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  102|  blake|  6000|2019-04-15|  m| hyd|
+|  103|  priya|  3000|2021-05-22|  f|pune|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> df1.printSchema()
+root
+ |-- empid: long (nullable = true)
+ |-- empname: string (nullable = true)
+ |-- salary: integer (nullable = true)                     : previously long. now integer
+ |-- JoinDate: string (nullable = true)
+ |-- sex: string (nullable = true)
+ |-- city: string (nullable = true)
+
+>>> 
+..........................................................................................
+ii) For modifying or updating the column value
+	1. updating with a value
+	2. updating based on condition
+	
+Task : incrementing the slararies with 20 % hike.
+
+>>> df2 = df.withColumn("salary",df.salary+df.salary*0.20)
+>>> df2.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|6000.0| 2020-02-2|  m|pune|
+|  102|  blake|7200.0|2019-04-15|  m| hyd|
+|  103|  priya|3600.0|2021-05-22|  f|pune|
+|  104|   sony|8400.0|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> 
+..............................................................................
+Updating with a constant value
+
+Task: adding 5000 as bonus to each employee.
+>>> df2 = df.withColumn("salary",df.salary+5000)
+>>> df2.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller| 10000| 2020-02-2|  m|pune|
+|  102|  blake| 11000|2019-04-15|  m| hyd|
+|  103|  priya|  8000|2021-05-22|  f|pune|
+|  104|   sony| 12000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> 
+..............................................................................
+ii). updating column vallues based on condition
+
+Here we use withColumn() along with when modify
+	"M" --------> "MALE"
+	"F" --------> "FEMALE"
+
+>>> df3 = df.withColumn("sex",when(df.sex=="m","MALE").when(df.sex=="f","FEMALE").otherwise(df.sex))
+>>> df3.show()
++-----+-------+------+----------+------+----+
+|empid|empname|salary|  JoinDate|   sex|city|
++-----+-------+------+----------+------+----+
+|  101| miller|  5000| 2020-02-2|  MALE|pune|
+|  102|  blake|  6000|2019-04-15|  MALE| hyd|
+|  103|  priya|  3000|2021-05-22|FEMALE|pune|
+|  104|   sony|  7000|2018-05-22|FEMALE| hyd|
++-----+-------+------+----------+------+----+
+................................................................................
+
+3). Adding a new column:
+.........................
+	- Adding a new column with default/constant/None/Null value
+	- Adding a new column based on another column
+	- Adding a new column based on condition
+
+1). Adding a new column with constant
+-- here we use lit() function
+
+Task: Adding a new column hike-percent
+.......................................
+>>> from pyspark.sql.functions import lit
+>>> df4 = df.withColumn("Hike_percent",lit(0.30))
+>>> df4.show()
++-----+-------+------+----------+---+----+------------+
+|empid|empname|salary|  JoinDate|sex|city|Hike_percent|
++-----+-------+------+----------+---+----+------------+
+|  101| miller|  5000| 2020-02-2|  m|pune|         0.3|
+|  102|  blake|  6000|2019-04-15|  m| hyd|         0.3|
+|  103|  priya|  3000|2021-05-22|  f|pune|         0.3|
+|  104|   sony|  7000|2018-05-22|  f| hyd|         0.3|
++-----+-------+------+----------+---+----+------------+
+
+>>> # NOTE - If you want to add a NULL/None -----> then use lit(None)
+................................................................................
+ii). Adding a new column based on anotehr column
+
+Generate 2 new columns ----> Tax and netsal based on exisitng column salary.
+
+>>> df5 = df.withColumn("Tax",df.salary*0.10)
+>>> df5 = df5.withColumn("NetSalary",df5.salary-df5.Tax)
+>>> df5.show()
++-----+-------+------+----------+---+----+-----+---------+
+|empid|empname|salary|  JoinDate|sex|city|  Tax|NetSalary|
++-----+-------+------+----------+---+----+-----+---------+
+|  101| miller|  5000| 2020-02-2|  m|pune|500.0|   4500.0|
+|  102|  blake|  6000|2019-04-15|  m| hyd|600.0|   5400.0|
+|  103|  priya|  3000|2021-05-22|  f|pune|300.0|   2700.0|
+|  104|   sony|  7000|2018-05-22|  f| hyd|700.0|   6300.0|
++-----+-------+------+----------+---+----+-----+---------+
+................................................................................
+iii). Adding a column by concatinating existing columns with separator.
+
+>>> from pyspark.sql.functions import concat_ws
+>>> df6 = df.withColumn("empid empname",concat_ws(" ","empid","empname"))
+>>> df6.show()
++-----+-------+------+----------+---+----+-------------+
+|empid|empname|salary|  JoinDate|sex|city|empid empname|
++-----+-------+------+----------+---+----+-------------+
+|  101| miller|  5000| 2020-02-2|  m|pune|   101 miller|
+|  102|  blake|  6000|2019-04-15|  m| hyd|    102 blake|
+|  103|  priya|  3000|2021-05-22|  f|pune|    103 priya|
+|  104|   sony|  7000|2018-05-22|  f| hyd|     104 sony|
++-----+-------+------+----------+---+----+-------------+
+................................................................................
+4) Generating new column based on condition.
+ex:- Generate column Grade
+	if sal >= 70000 -----> Grade "A"
+	if sal >= 50000 and sal < 70000 -----> Grade "B"
+	else       --------------------------> Grade "c"
+	
+>>> from pyspark.sql.functions import when,lit
+
+>>> df.withColumn('grade',when((df.salary >= 70000), lit("a")).when((df.salary < 70000 ) & (df.salary >= 50000),lit("b")).otherwise(lit("c"))).show()
++-----+-------+------+----------+---+----+-----+
+|empid|empname|salary|  JoinDate|sex|city|grade|
++-----+-------+------+----------+---+----+-----+
+|  101| miller|  5000| 2020-02-2|  m|pune|    c|
+|  102|  blake|  6000|2019-04-15|  m| hyd|    c|
+|  103|  priya|  3000|2021-05-22|  f|pune|    c|
+|  104|   sony|  7000|2018-05-22|  f| hyd|    c|
++-----+-------+------+----------+---+----+-----+
+
+.....................................................................................
+lit() : lit() function is used to add a constant value as a new column.
+
+1). lit() function with select()
+
+>>> from pyspark.sql.functions import col,lit
+>>> data = data = [(101,'miller',5000,'2020-02-2','m','pune'),(102,'blake',6000,'2019-04-15','m','hyd'),(103,'priya',3000,'2021-05-22','f','pune'),(104,'sony',7000,'2018-05-22','f','hyd')]
+>>> columns = ["empid","empname","salary","JoinDate","sex","city"]
+>>> df = spark.createDataFrame(data,columns)
+>>> df.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  102|  blake|  6000|2019-04-15|  m| hyd|
+|  103|  priya|  3000|2021-05-22|  f|pune|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> from pyspark.sql.functions import col,lit
+>>> df2 = df.select(col("empid"),col("empname"),col("salary"),lit("ibm").alias("company"))
+>>> df2.show()
++-----+-------+------+-------+
+|empid|empname|salary|company|
++-----+-------+------+-------+
+|  101| miller|  5000|    ibm|
+|  102|  blake|  6000|    ibm|
+|  103|  priya|  3000|    ibm|
+|  104|   sony|  7000|    ibm|
++-----+-------+------+-------+
+....................................................................
+
+ii). lit() function with withColumn()
+
+>>> from pyspark.sql.functions import col,lit,when
+>>> df3 = df.withColumn("loan_status",when(col("salary")>=50000,lit("eligible")).otherwise(lit("not eligible")))
+>>> df3.show()
++-----+-------+------+----------+---+----+------------+
+|empid|empname|salary|  JoinDate|sex|city| loan_status|
++-----+-------+------+----------+---+----+------------+
+|  101| miller|  5000| 2020-02-2|  m|pune|not eligible|
+|  102|  blake|  6000|2019-04-15|  m| hyd|not eligible|
+|  103|  priya|  3000|2021-05-22|  f|pune|not eligible|
+|  104|   sony|  7000|2018-05-22|  f| hyd|not eligible|
++-----+-------+------+----------+---+----+------------+
+
+>>> 
+..........................................................................
+withColumnRenames()
+...................
+
+using this function we can perform the following:-
+
+1). to rename a column
+2). to rename multiple columns
+3). DYnamically rename all or multiple columns
+
+Syntax:
+	withColumnRenamed("oldcolname","newcolname")
+
+>>> df5 = df.withColumnRenamed("empid","ecode")
+>>> df5.show()
++-----+-------+------+----------+---+----+
+|ecode|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  102|  blake|  6000|2019-04-15|  m| hyd|
+|  103|  priya|  3000|2021-05-22|  f|pune|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+...........................................................................
+
+ii). renaming multiple columns
+
+rename   ----------> salary to income
+			sex to gender
+>>> df6 = df.withColumnRenamed("salary","income").withColumnRenamed("sex","gender")
+>>> df6.show()
++-----+-------+------+----------+------+----+
+|empid|empname|income|  JoinDate|gender|city|
++-----+-------+------+----------+------+----+
+|  101| miller|  5000| 2020-02-2|     m|pune|
+|  102|  blake|  6000|2019-04-15|     m| hyd|
+|  103|  priya|  3000|2021-05-22|     f|pune|
+|  104|   sony|  7000|2018-05-22|     f| hyd|
++-----+-------+------+----------+------+----+
+
+.............................................................................
+iii). to change all the columns in a DF
+
+>> newcolumns = ["col1","col2","col3","col4","col5","col6"]
+>>> df7 = df6.toDF(*newcolumns)
+>>> df6.printSchema()
+root
+ |-- empid: long (nullable = true)
+ |-- empname: string (nullable = true)
+ |-- income: long (nullable = true)
+ |-- JoinDate: string (nullable = true)
+ |-- gender: string (nullable = true)
+ |-- city: string (nullable = true)
+
+>>> df7.printSchema()
+root
+ |-- col1: long (nullable = true)
+ |-- col2: string (nullable = true)
+ |-- col3: long (nullable = true)
+ |-- col4: string (nullable = true)
+ |-- col5: string (nullable = true)
+ |-- col6: string (nullable = true)
+
+>>> 
+................................................................................
+filter():
+	--we can perform the following
+	1. Filter the column condition
+	    Filter those emps whose salaries > 50000
+
+>>> df.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  102|  blake|  6000|2019-04-15|  m| hyd|
+|  103|  priya|  3000|2021-05-22|  f|pune|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> df1 = df.filter(df.salary > 5000)
+>>> df1.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  102|  blake|  6000|2019-04-15|  m| hyd|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> 
+...............................................................................
+2. Filter only "male" emp records.
+
+>>> df1 = df.filter(df.sex=='m')
+>>> df1.show()
++-----+-------+------+----------+---+----+                                      
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  102|  blake|  6000|2019-04-15|  m| hyd|
++-----+-------+------+----------+---+----+
+
+..........................................................
+3). FIlter those employees who belongs to other than "hyd" city.
+
+>>> df2 = df.filter(df.city != "hyd")
+>>> df2.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  103|  priya|  3000|2021-05-22|  f|pune|
++-----+-------+------+----------+---+----+
+
+Note: - We can use comparison operators for filtering
+>,< , >= , <= , == , !=
+
+..........................................................
+2). Filtering using col() function
+
+>> df3 = df.filter(col("city")=="hyd")
+>>> df3.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  102|  blake|  6000|2019-04-15|  m| hyd|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+.......................................................
+3). Filtering with sql expression
+
+>>> df8 = df.filter("sex = 'm' ")
+>>> df8.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  102|  blake|  6000|2019-04-15|  m| hyd|
++-----+-------+------+----------+---+----+
+......................................................
+4). FIltering with multiple conditions
+
+>>> df9 = df.filter((df.salary>5000)&(df.city=="hyd"))
+>>> df9.collect()
+[Row(empid=102, empname='blake', salary=6000, JoinDate='2019-04-15', sex='m', city='hyd'), Row(empid=104, empname='sony', salary=7000, JoinDate='2018-05-22', sex='f', city='hyd')]
+>>> df9.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  102|  blake|  6000|2019-04-15|  m| hyd|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+.........................................................
+5). Filter based on list values:
+
+isin(): using this function we can filter the elements which are in list or which are not in list.
+
+Task: If we have multiple cities, then filter only those emps who belongs to the cities hyd,pune.
+
+>>> list1 = ["hyd","pune"]
+>>> df7 = df.filter(df.city.isin(list1))
+>>> df7.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  102|  blake|  6000|2019-04-15|  m| hyd|
+|  103|  priya|  3000|2021-05-22|  f|pune|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+...........................................................
+
+ex2 : - Filter those emps other than city hyd.
+
+>>> list2 = ["hyd"]
+>>> df8 = df.filter(df.city.isin(list2)==False)
+>>> df8.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller|  5000| 2020-02-2|  m|pune|
+|  103|  priya|  3000|2021-05-22|  f|pune|
++-----+-------+------+----------+---+----+
+
+............................................................
+6. Filter based on startswith, endswith
+
+>>> df9 =df.filter(df.empname.startswith("m"))
+>>> df9.show()
++-----+-------+------+---------+---+----+
+|empid|empname|salary| JoinDate|sex|city|
++-----+-------+------+---------+---+----+
+|  101| miller|  5000|2020-02-2|  m|pune|
++-----+-------+------+---------+---+----+
+
+...........................................................
+ii). Task: FIlter those who joined in the year 2022. Means ere joindate should ends with 22
+
+>>> df9 = df.filter(df.JoinDate.endswith("22"))
+>>> df9.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  103|  priya|  3000|2021-05-22|  f|pune|
+|  104|   sony|  7000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+............................................................
+
+>>> data = [("rahul","mrkt",30000),("blake","fin",40000),("rahul","mrkt",30000),("miller","sales","50000"),("miller","sales","50000")]
+>>> columns = ["empname","dept","salary"]
+
+distinct() : for eliminating the dublicates
+...........................................
+>> data = [("rahul","mrkt",30000),("blake","fin",40000),("rahul","mrkt",30000),("miller","sales","50000"),("miller","sales","50000")]
+>>> columns = ["empname","dept","salary"]
+>>> df1 = spark.createDataFrame(data,columns)
+>>> df1.show()
++-------+-----+------+
+|empname| dept|salary|
++-------+-----+------+
+|  rahul| mrkt| 30000|
+|  blake|  fin| 40000|
+|  rahul| mrkt| 30000|
+| miller|sales| 50000|
+| miller|sales| 50000|
++-------+-----+------+
+............................................
+
+>>> res1 = df1.distinct()
+>>> res1.show()
++-------+-----+------+
+|empname| dept|salary|
++-------+-----+------+
+|  rahul| mrkt| 30000|
+|  blake|  fin| 40000|
+| miller|sales| 50000|
++-------+-----+------+
+...................................................
+# I want the count of unique employees.
+
+>>> print("no of employee=",res1.count())
+no of employee= 3
+>>> 
+>>> print("no of employees="+str(res1.count()))
+no of employees=3
+>>> 
+....................................................
+>>> # dropDublicates(): we can also remove the dublicates using this
+
+>>> df2=res1.dropDuplicates()
+>>> df2.show()
++-------+-----+------+
+|empname| dept|salary|
++-------+-----+------+
+|  rahul| mrkt| 30000|
+|  blake|  fin| 40000|
+| miller|sales| 50000|
++-------+-----+------+
+
+........................................................
+>>> data = [(101,'miller',50000,'2020-02-21','m','pune'),(102,'blake',60000,'2019-04-15','m','hyd'),(103,'priya',30000,'2021-05-22','f','pune'),(104,'sony',70000,'2018-05-22','f','hyd')]
+>>> columns = ["empid","empname","salary","JoinDate","sex","city"]
+>>> df = spark.createDataFrame(data,columns)
+>>> df.show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  101| miller| 50000|2020-02-21|  m|pune|
+|  102|  blake| 60000|2019-04-15|  m| hyd|
+|  103|  priya| 30000|2021-05-22|  f|pune|
+|  104|   sony| 70000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> df.sort("salary").show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  103|  priya| 30000|2021-05-22|  f|pune|
+|  101| miller| 50000|2020-02-21|  m|pune|
+|  102|  blake| 60000|2019-04-15|  m| hyd|
+|  104|   sony| 70000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+..............................................................
+# Sorting based on multiple columns:-
+>>> df.sort("salary","sex").show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  103|  priya| 30000|2021-05-22|  f|pune|
+|  101| miller| 50000|2020-02-21|  m|pune|
+|  102|  blake| 60000|2019-04-15|  m| hyd|
+|  104|   sony| 70000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> df.sort("city","sex").show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  104|   sony| 70000|2018-05-22|  f| hyd|
+|  102|  blake| 60000|2019-04-15|  m| hyd|
+|  103|  priya| 30000|2021-05-22|  f|pune|
+|  101| miller| 50000|2020-02-21|  m|pune|
++-----+-------+------+----------+---+----+
+
+..............................................................
+# Using col
+
+>>> from pyspark.sql.functions import col
+>>> df.sort(col("city"),col("sex")).show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  104|   sony| 70000|2018-05-22|  f| hyd|
+|  102|  blake| 60000|2019-04-15|  m| hyd|
+|  103|  priya| 30000|2021-05-22|  f|pune|
+|  101| miller| 50000|2020-02-21|  m|pune|
++-----+-------+------+----------+---+----+
+
+.............................................................
+
+>> df.sort(df.salary.desc()).show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  104|   sony| 70000|2018-05-22|  f| hyd|
+|  102|  blake| 60000|2019-04-15|  m| hyd|
+|  101| miller| 50000|2020-02-21|  m|pune|
+|  103|  priya| 30000|2021-05-22|  f|pune|
++-----+-------+------+----------+---+----+
+
+>>> df.sort(df.salary.asc()).show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  103|  priya| 30000|2021-05-22|  f|pune|
+|  101| miller| 50000|2020-02-21|  m|pune|
+|  102|  blake| 60000|2019-04-15|  m| hyd|
+|  104|   sony| 70000|2018-05-22|  f| hyd|
++-----+-------+------+----------+---+----+
+
+>>> df.sort(col("salary").desc()).show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  104|   sony| 70000|2018-05-22|  f| hyd|
+|  102|  blake| 60000|2019-04-15|  m| hyd|
+|  101| miller| 50000|2020-02-21|  m|pune|
+|  103|  priya| 30000|2021-05-22|  f|pune|
++-----+-------+------+----------+---+----+
+
+...........................................................
+# Sorting based on Raw sql
+>>> df.sort(df.salary.desc()).show()
++-----+-------+------+----------+---+----+
+|empid|empname|salary|  JoinDate|sex|city|
++-----+-------+------+----------+---+----+
+|  104|   sony| 70000|2018-05-22|  f| hyd|
+|  102|  blake| 60000|2019-04-15|  m| hyd|
+|  101| miller| 50000|2020-02-21|  m|pune|
+|  103|  priya| 30000|2021-05-22|  f|pune|
++-----+-------+------+----------+---+----+
+...........................................................
+Replacing column values within DataFrame
+
+1.Replacing a portion of string with another string
+2.Replacing column value conditionally
+3.Replacing values from a python dictionary.
+
+>>> address = [(101,"24 beach rd","chennei"),(102,"308 gandhi st","ban"),(103,"406 Temple rd","hyd")]
+>>> df = spark.createDataFrame(address,["id","address","city"])
+>>> df.show()
++---+-------------+-------+
+| id|      address|   city|
++---+-------------+-------+
+|101|  24 beach rd|chennei|
+|102|308 gandhi st|    ban|
+|103|406 Temple rd|    hyd|
++---+-------------+-------+
+.........................................................
+Task : Replace "rd" with "road" using regexp_replace()
+
+from pyspark.sql.functions import regexp_replace
+
+>>> df2 = df.withColumn('address',regexp_replace('address','rd','road'))
+>>> df2.show()
++---+---------------+-------+
+| id|        address|   city|
++---+---------------+-------+
+|101|  24 beach road|chennei|
+|102|  308 gandhi st|    ban|
+|103|406 Temple road|    hyd|
++---+---------------+-------+
+......................................................................
+2) Replacing column values conditionally using pyspark sql functions like
+1. when()
+2. otherwise()
+
+.....................................................................
+>>> from pyspark.sql.functions import when
+>>> df.withColumn('address',when(df.address.endswith('rd'),regexp_replace(df.address,'rd','road')).when(df.address.endswith('st'),regexp_replace(df.address,'st','street')).otherwise(df.address)).show()
++---+-----------------+-------+
+| id|          address|   city|
++---+-----------------+-------+
+|101|    24 beach road|chennei|
+|102|308 gandhi street|    ban|
+|103|  406 Temple road|    hyd|
++---+-----------------+-------+
+
+....................................................................
+3) Replacing column values with Dictionary(map)
+
+citydict = {'chennai':'Chennai','BAN':'Bangalore','HYD':'Hyderabad'}
+
+>>> citydict = {'chennai':'Chennai','BAN':'Bangalore','HYD':'Hyderabad'}
+>>> df.show()
++---+-------------+-------+
+| id|      address|   city|
++---+-------------+-------+
+|101|  24 beach rd|chennei|
+|102|308 gandhi st|    ban|
+|103|406 Temple rd|    hyd|
++---+-------------+-------+
+
+>>> df2 = df.rdd.map(lambda x:(x.id,x.address,x.city)).toDF(["id","address","city"])
+>>> df2.show()
++---+-------------+-------+
+| id|      address|   city|
++---+-------------+-------+
+|101|  24 beach rd|chennei|
+|102|308 gandhi st|    ban|
+|103|406 Temple rd|    hyd|
++---+-------------+-------+
+
+............................................................................
+
+Reading different file formats in spark:-
+........................................
+1. csv   , 2. json   3.parquet  4. orc    5. avro
+
+1. CSV file :
+.............
+
+>> from pyspark.sql import SparkSession
+
+>>> spark = SparkSession.builder.appName('DemoApp').getOrCreate()
+24/02/25 16:25:32 WARN SparkSession: Using an existing Spark session; only runtime SQL configurations will take effect.
+>>> filepath = "hdfs://localhost:9000//pyspark330pm/emp1.csv"
+>>> df = spark.read.format('csv').option("inferschema","true").option("header","true").option("delimeter",",").load(filepath)
+>>> df.write.option("header","true").csv("hdfs://localhost:9000/pyspark330pm")
+ERRR:-  [PATH_ALREADY_EXISTS] Path hdfs://localhost:9000/pyspark330pm already exists. Set mode as "overwrite" to overwrite the existing path.
+
+>>> df.write.option("header","true").csv("hdfs://localhost:9000/pyspark330pm/csv")
+>>>        
+...........................................................................
+2) JSON file
+
+>> from pyspark.sql import SparkSession
+>>> spark = SparkSession.builder.appName('DemoApp').getOrCreate()
+>>>> filepath = "hdfs://localhost:9000/pyspark330pm/json1.json"
+
+>>> #Reading a jsonfile and creating a Dataframe
+
+>>> df = spark.read.format('json').load(filepath)
+>>> df.write.json("hdfs://localhost:9000/pyspark330pm/json/")
+
+.............................................................
+
+https://www.upsolver.com/blog/the-file-format-fundamentals-of-big-data
+...........................................................................
+3. Parquet File:-
+
+>> from pyspark.sql import SparkSession
+>>> spark = SparkSession.builder.appName('DemoApp').getOrCreate()
+
+>> filepath = "hdfs://localhost:9000/pyspark330pm/parquet.parquet"
+>>> #Reading a parquet file and creating a dataframe
+>>> df = spark.read.format('parquet').load(filepath)
+>>> #Writing into a parquet file(creating a parquetfile from a df)
+>>> df.write.parquet("hdfs://localhost:9000/pyspark330pm/parquet/")
+>>>                                                                             
+
+..........................................................................
+4). ORC(Optimized Row Columnar)
+
+>> from pyspark.sql import SparkSession
+>>> spark = SparkSession.builder.appName('DemoApp').getOrCreate()
+
+>> filepath = "hdfs://localhost:9000/pyspark330pm/orc.orc"
+>>> #Reading a orc file and creating a dataframe
+>>> df = spark.read.format('orc').load(filepath)
+>>> #Writing into a orc file(creating a orcfile from a df)
+>>> df.write.orc("hdfs://localhost:9000/pyspark330pm/orc/")
+
+.............................................................................
+
+5). AVRO
+
+>> from pyspark.sql import SparkSession
+>>> spark = SparkSession.builder.appName('DemoApp').getOrCreate()
+
+>> filepath = "hdfs://localhost:9000/pyspark330pm/avro.avro"
+>>> #Reading a avro file and creating a dataframe
+>>> df = spark.read.format('avro').load(filepath)
+>>> #Writing into a avro file(creating a orcfile from a df)
+>>> df.write.format("avro").save("hdfs://localhost:9000/pyspark330pm/avro")
+
+
