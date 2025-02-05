@@ -1,0 +1,13 @@
+https://artoftesting.com/sql-queries-for-interview
+https://www.geeksforgeeks.org/python-programming-language-tutorial/?ref=outindfooter
+https://www.machinelearningplus.com/pyspark/pyspark-exercises-101-pyspark-exercises-for-data-analysis/
+https://github.com/areibman/pyspark_exercises/tree/master/01_Getting_%26_Knowing_Your_Data
+https://github.com/deryaoruc/Spark_Exercises/blob/main/Pyspark_Exercises.ipynb
+https://medium.com/illumination/top-free-resources-for-learning-pyspark-in-self-paced-learning-9dfc26748eea
+https://github.com/spark-examples/pyspark-examples
+https://github.com/Thanaraklee/Real-Time-PySpark/blob/main/Exercise/Load-%26-Join.ipynb
+https://github.com/ChiragSehra/pyspark_exercises
+https://github.com/viswavishu/Advanced-50-Key-Pyspark-questions-from-LeetCode-/blob/main/50%20Advanced%20Pyspark%20Dataframe%20Problems.ipynb
+https://www.oreilly.com/library/view/hands-on-big-data/9781838644130/
+https://www.coursera.org/learn/pyspark-in-action-hands-on-data-processing?msockid=3e36b1c0eb0161b6082da4cbeab360bb
+https://www.sparkplayground.com/pyspark-online-compiler
